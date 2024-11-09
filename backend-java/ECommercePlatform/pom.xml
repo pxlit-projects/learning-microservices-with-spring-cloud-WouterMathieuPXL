@@ -23,6 +23,8 @@
     </developers>
     <modules>
         <module>productcatalogus-service</module>
+        <module>winkelwagen-service</module>
+        <module>logboek-service</module>
     </modules>
     <scm>
         <connection/>
