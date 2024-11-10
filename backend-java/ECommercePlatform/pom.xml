@@ -22,9 +22,9 @@
         <developer/>
     </developers>
     <modules>
-        <module>productcatalogus-service</module>
-        <module>winkelwagen-service</module>
-        <module>logboek-service</module>
+        <module>productcatalog-service</module>
+        <module>shoppingcart-service</module>
+        <module>logbook-service</module>
         <module>discovery-service</module>
     </modules>
     <scm>
