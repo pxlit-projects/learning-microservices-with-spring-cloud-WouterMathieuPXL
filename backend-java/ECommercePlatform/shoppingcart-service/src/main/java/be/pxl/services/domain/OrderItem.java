@@ -18,10 +18,9 @@ public class OrderItem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String productId;
+    private Long productId;
     private String productName;
     private int quantity;
-    // Store the price at the time of ordering
     private double price;
 
     @ManyToOne

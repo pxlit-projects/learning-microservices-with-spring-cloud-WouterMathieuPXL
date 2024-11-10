@@ -1,6 +1,7 @@
 package be.pxl.services.controller;
 
 import be.pxl.services.domain.CustomerOrder;
+import be.pxl.services.domain.dto.CustomerOrderResponse;
 import be.pxl.services.domain.dto.ShoppingCartResponse;
 import be.pxl.services.services.IShoppingCartService;
 import lombok.RequiredArgsConstructor;
@@ -65,7 +66,7 @@ public class ShoppingCartController {
 
     @PostMapping("/{shoppingCartId}/checkout")
     @ResponseStatus(HttpStatus.OK)
-    public CustomerOrder checkoutShoppingCart(@PathVariable Long shoppingCartId) {
+    public CustomerOrderResponse checkoutShoppingCart(@PathVariable Long shoppingCartId) {
         log.info("Received request to checkout shopping cart with ID: {}", shoppingCartId);
         return shoppingCartService.checkout(shoppingCartId);
     }

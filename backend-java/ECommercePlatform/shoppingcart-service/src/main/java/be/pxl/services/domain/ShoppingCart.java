@@ -6,10 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "shopping_cart")
@@ -24,7 +21,7 @@ public class ShoppingCart {
     private Long id;
 
     @OneToMany(mappedBy = "shoppingCart", cascade = CascadeType.ALL, orphanRemoval = true)
-    private final Set<ShoppingCartItem> shoppingCartItems = new HashSet<>();
+    private List<ShoppingCartItem> shoppingCartItems = new ArrayList<>();
 
     @Override
     public boolean equals(Object o) {

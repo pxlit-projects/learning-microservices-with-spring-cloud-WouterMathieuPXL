@@ -1,13 +1,13 @@
 package be.pxl.services.services.implementation;
 
 import be.pxl.services.client.ProductCatalogClient;
-import be.pxl.services.domain.CustomerOrder;
-import be.pxl.services.domain.Product;
-import be.pxl.services.domain.ShoppingCart;
-import be.pxl.services.domain.ShoppingCartItem;
+import be.pxl.services.domain.*;
+import be.pxl.services.domain.dto.CustomerOrderResponse;
+import be.pxl.services.domain.dto.OrderItemResponse;
 import be.pxl.services.domain.dto.ShoppingCartItemResponse;
 import be.pxl.services.domain.dto.ShoppingCartResponse;
 import be.pxl.services.exceptions.ResourceNotFoundException;
+import be.pxl.services.repository.CustomerOrderRepository;
 import be.pxl.services.repository.ShoppingCartRepository;
 import be.pxl.services.services.IShoppingCartService;
 import feign.FeignException;
@@ -15,8 +15,10 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -27,6 +29,7 @@ public class ShoppingCartService implements IShoppingCartService {
     private static final Logger log = LoggerFactory.getLogger(ShoppingCartService.class);
 
     private final ShoppingCartRepository shoppingCartRepository;
+    private final CustomerOrderRepository customerOrderRepository;
     private final ProductCatalogClient productCatalogClient;
 
     @Override
@@ -123,14 +126,69 @@ public class ShoppingCartService implements IShoppingCartService {
     }
 
     @Override
-    @Transactional
-    public CustomerOrder checkout(Long shoppingCartId) {
+    public CustomerOrderResponse checkout(Long shoppingCartId) {
         log.info("Checking out shopping cart with ID: {}", shoppingCartId);
         ShoppingCart shoppingCart = findShoppingCartById(shoppingCartId);
 
-        // TODO: Logic to checkout
+        // Set product for every item
+        shoppingCart.getShoppingCartItems()
+                .forEach(cartItem -> cartItem.setProduct(getProductFromProductId(cartItem.getProductId())));
 
-        return new CustomerOrder();
+        // Transactional
+        boolean itemsRemoved = removeItemsWithoutProductAndSave(shoppingCart);
+        if (itemsRemoved) {
+            throw new ResourceNotFoundException(
+                    "One or more products were not found in the catalog and have been removed. Order cannot proceed.");
+        }
+
+        return createCustomerOrder(shoppingCart);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public boolean removeItemsWithoutProductAndSave(ShoppingCart shoppingCart) {
+        boolean itemsRemoved = shoppingCart.getShoppingCartItems().removeIf(cartItem -> {
+            boolean shouldRemove = cartItem.getProduct() == null;
+            if (shouldRemove) {
+                log.info("Product with ID: {} removed from shopping cart", cartItem.getProductId());
+            }
+            return shouldRemove;
+        });
+
+        if (itemsRemoved) {
+            shoppingCartRepository.save(shoppingCart);
+        }
+
+        return itemsRemoved;
+    }
+
+    @Transactional
+    public CustomerOrderResponse createCustomerOrder(ShoppingCart shoppingCart) {
+        CustomerOrder customerOrder = CustomerOrder.builder()
+                .dateTime(LocalDateTime.now())
+                .build();
+        customerOrderRepository.save(customerOrder);
+
+        // Add items to the order
+        shoppingCart.getShoppingCartItems().forEach(cartItem -> {
+            OrderItem orderItem = OrderItem.builder()
+                    .productId(cartItem.getProduct().getId())
+                    .productName(cartItem.getProduct().getName())
+                    .quantity(cartItem.getQuantity())
+                    .price(cartItem.getProduct().getPrice())
+                    .build();
+
+            customerOrder.addOrderItem(orderItem);
+        });
+
+        customerOrderRepository.save(customerOrder);
+        log.info("Checked out shopping cart with ID: {}", shoppingCart.getId());
+
+        // Clear the shopping cart
+        shoppingCart.getShoppingCartItems().clear();
+        shoppingCartRepository.save(shoppingCart);
+        log.info("Cleared shopping cart with ID: {}", shoppingCart.getId());
+
+        return mapCustomerOrderToCustomerOrderResponse(customerOrder);
     }
 
     private ShoppingCart findShoppingCartById(Long shoppingCartId) {
@@ -166,6 +224,25 @@ public class ShoppingCartService implements IShoppingCartService {
                 .id(item.getId())
                 .product(getProductFromProductId(item.getProductId()))
                 .quantity(item.getQuantity())
+                .build();
+    }
+
+    public CustomerOrderResponse mapCustomerOrderToCustomerOrderResponse(CustomerOrder customerOrder) {
+        return CustomerOrderResponse.builder()
+                .id(customerOrder.getId())
+                .dateTime(customerOrder.getDateTime())
+                .orderItems(
+                        customerOrder.getOrderItems().stream()
+                                .map(this::mapOrderItemToOrderItemResponse).toList())
+                .build();
+    }
+
+    public OrderItemResponse mapOrderItemToOrderItemResponse(OrderItem orderItem) {
+        return OrderItemResponse.builder()
+                .productId(orderItem.getProductId())
+                .productName(orderItem.getProductName())
+                .quantity(orderItem.getQuantity())
+                .price(orderItem.getPrice())
                 .build();
     }
 }

@@ -1,6 +1,7 @@
 package be.pxl.services.services;
 
 import be.pxl.services.domain.CustomerOrder;
+import be.pxl.services.domain.dto.CustomerOrderResponse;
 import be.pxl.services.domain.dto.ShoppingCartResponse;
 
 public interface IShoppingCartService {
@@ -10,5 +11,5 @@ public interface IShoppingCartService {
     void updateProductQuantityInShoppingCart(Long shoppingCartId, Long productId, int quantity);
     void removeProductFromShoppingCart(Long shoppingCartId, Long productId);
 
-    CustomerOrder checkout(Long shoppingCartId);
+    CustomerOrderResponse checkout(Long shoppingCartId);
 }
