@@ -8,36 +8,53 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/winkelwagen")
+@RequestMapping("/api/shoppingcart")
 @RequiredArgsConstructor
 public class ShoppingCartController {
 
     private final IShoppingCartService shoppingCartService;
 
-    @GetMapping("/{cartId}")
+    @GetMapping("/{shoppingCartId}")
     @ResponseStatus(HttpStatus.OK)
-    public ShoppingCartResponse getShoppingCart(@PathVariable Long cartId) {
-        return shoppingCartService.getShoppingCart(cartId);
+    public ShoppingCartResponse getShoppingCartById(@PathVariable Long shoppingCartId) {
+        return shoppingCartService.getShoppingCartById(shoppingCartId);
     }
 
-    @PostMapping("/add")
+    @PostMapping("/{shoppingCartId}/products")
     @ResponseStatus(HttpStatus.CREATED)
-    public ShoppingCartResponse addProductToCart(@RequestParam Long cartId, @RequestParam Long productId,
-                                         @RequestParam int quantity) {
-        shoppingCartService.addProductToCart(cartId, productId, quantity);
-        return shoppingCartService.getShoppingCart(cartId);
+    // url: /api/shoppingcart/{shoppingCartId}/products?productId={productId}&quantity={quantity}
+    public ShoppingCartResponse addProductToShoppingCart(
+            @PathVariable Long shoppingCartId,
+            @RequestParam Long productId,
+            @RequestParam int quantity) {
+        shoppingCartService.addProductToShoppingCart(shoppingCartId, productId, quantity);
+        return shoppingCartService.getShoppingCartById(shoppingCartId);
     }
 
-    @DeleteMapping("/remove")
+    @PatchMapping("/{shoppingCartId}/products")
     @ResponseStatus(HttpStatus.OK)
-    public ShoppingCartResponse removeProductFromCart(@RequestParam Long cartId, @RequestParam Long productId) {
-        shoppingCartService.removeProductFromCart(cartId, productId);
-        return shoppingCartService.getShoppingCart(cartId);
+    // url: /api/shoppingcart/{shoppingCartId}/products?productId={productId}&quantity={quantity}
+    public ShoppingCartResponse updateProductQuantityInShoppingCart(
+            @PathVariable Long shoppingCartId,
+            @RequestParam Long productId,
+            @RequestParam int quantity) {
+        shoppingCartService.updateProductQuantityInShoppingCart(shoppingCartId, productId, quantity);
+        return shoppingCartService.getShoppingCartById(shoppingCartId);
     }
 
-    @PostMapping("/checkout")
+    @DeleteMapping("/{shoppingCartId}/products")
     @ResponseStatus(HttpStatus.OK)
-    public CustomerOrder checkout(@RequestParam Long cartId) {
-        return shoppingCartService.checkout(cartId);
+    // url: /api/shoppingcart/{shoppingCartId}/products?productId={productId}
+    public ShoppingCartResponse removeProductFromShoppingCart(
+            @PathVariable Long shoppingCartId,
+            @RequestParam Long productId) {
+        shoppingCartService.removeProductFromShoppingCart(shoppingCartId, productId);
+        return shoppingCartService.getShoppingCartById(shoppingCartId);
+    }
+
+    @PostMapping("/{shoppingCartId}/checkout")
+    @ResponseStatus(HttpStatus.OK)
+    public CustomerOrder checkoutShoppingCart(@PathVariable Long shoppingCartId) {
+        return shoppingCartService.checkout(shoppingCartId);
     }
 }

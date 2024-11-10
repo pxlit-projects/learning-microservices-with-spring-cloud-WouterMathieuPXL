@@ -5,9 +5,10 @@ import be.pxl.services.domain.dto.ShoppingCartResponse;
 
 public interface IShoppingCartService {
 
-    ShoppingCartResponse getShoppingCart(Long cartId);
-    void addProductToCart(Long cartId, Long productId, int quantity);
-    void removeProductFromCart(Long cartId, Long productId);
+    ShoppingCartResponse getShoppingCartById(Long shoppingCartId);
+    void addProductToShoppingCart(Long shoppingCartId, Long productId, int quantity);
+    void updateProductQuantityInShoppingCart(Long shoppingCartId, Long productId, int quantity);
+    void removeProductFromShoppingCart(Long shoppingCartId, Long productId);
 
-    CustomerOrder checkout(Long cartId);
+    CustomerOrder checkout(Long shoppingCartId);
 }

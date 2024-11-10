@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/productcatalogus/labels")
+@RequestMapping("/api/productcatalog/labels")
 @RequiredArgsConstructor
 public class LabelController {
 
@@ -45,6 +45,7 @@ public class LabelController {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteLabel(@PathVariable Long id) {
+        // TODO: Notfound instead of 500 Internal Server Error
         labelService.deleteLabel(id);
     }
 }

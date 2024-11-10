@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/productcatalogus")
+@RequestMapping("/api/productcatalog")
 @RequiredArgsConstructor
 public class ProductController {
 
@@ -51,6 +51,7 @@ public class ProductController {
     @DeleteMapping("/delete/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteProduct(@PathVariable Long id){
+        // TODO: Error if not found
         productService.deleteProduct(id);
     }
 }
