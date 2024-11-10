@@ -12,6 +12,8 @@ import be.pxl.services.repository.ShoppingCartRepository;
 import be.pxl.services.services.IShoppingCartService;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,25 +24,28 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ShoppingCartService implements IShoppingCartService {
 
+    private static final Logger log = LoggerFactory.getLogger(ShoppingCartService.class);
+
     private final ShoppingCartRepository shoppingCartRepository;
     private final ProductCatalogClient productCatalogClient;
 
     @Override
     public ShoppingCartResponse getShoppingCartById(Long shoppingCartId) {
-        ShoppingCart shoppingCart = shoppingCartRepository.findById(shoppingCartId)
-                .orElseThrow(() -> new ResourceNotFoundException("Shopping cart not found"));
+        log.info("Fetching shopping cart with ID: {}", shoppingCartId);
+        ShoppingCart shoppingCart = findShoppingCartById(shoppingCartId);
         return mapToShoppingCartResponse(shoppingCart);
     }
 
     @Override
     @Transactional
     public void addProductToShoppingCart(Long shoppingCartId, Long productId, int quantity) {
-        ShoppingCart shoppingCart = shoppingCartRepository.findById(shoppingCartId)
-                .orElseThrow(() -> new ResourceNotFoundException("Shopping cart not found"));
+        log.info("Adding product with ID: {} to shopping cart with ID: {}", productId, shoppingCartId);
+        ShoppingCart shoppingCart = findShoppingCartById(shoppingCartId);
 
         // Check if product exists
         Product product = getProductFromProductId(productId);
         if (product == null) {
+            log.error("Product with ID: {} not found in catalog", productId);
             throw new ResourceNotFoundException("Product not found in catalog");
         }
 
@@ -69,23 +74,29 @@ public class ShoppingCartService implements IShoppingCartService {
         }
 
         shoppingCartRepository.save(shoppingCart);
+        log.info("Product with ID: {} added to shopping cart with ID: {}", productId, shoppingCartId);
     }
 
     @Override
     @Transactional
     public void updateProductQuantityInShoppingCart(Long shoppingCartId, Long productId, int quantity) {
-        ShoppingCart shoppingCart = shoppingCartRepository.findById(shoppingCartId)
-                .orElseThrow(() -> new ResourceNotFoundException("Shopping cart not found"));
+        log.info("Updating quantity of product with ID: {} in shopping cart with ID: {}", productId, shoppingCartId);
+        ShoppingCart shoppingCart = findShoppingCartById(shoppingCartId);
 
         ShoppingCartItem shoppingCartItem = shoppingCart.getShoppingCartItems().stream()
                 .filter(item -> item.getProductId().equals(productId))
                 .findFirst()
-                .orElseThrow(() -> new ResourceNotFoundException("Product not found in shopping cart"));
+                .orElseThrow(() -> {
+                    log.error("Product with ID: {} not found in shopping cart", productId);
+                    return new ResourceNotFoundException("Product not found in shopping cart");
+                });
 
         if (quantity > 0) {
             shoppingCartItem.setQuantity(quantity);
+            log.info("Quantity of product with ID: {} updated in shopping cart with ID: {}", productId, shoppingCartId);
         } else {
             shoppingCart.getShoppingCartItems().remove(shoppingCartItem);
+            log.info("Product with ID: {} removed from shopping cart with ID: {}", productId, shoppingCartId);
         }
 
         shoppingCartRepository.save(shoppingCart);
@@ -94,28 +105,49 @@ public class ShoppingCartService implements IShoppingCartService {
     @Override
     @Transactional
     public void removeProductFromShoppingCart(Long shoppingCartId, Long productId) {
-        ShoppingCart shoppingCart = shoppingCartRepository.findById(shoppingCartId)
-                .orElseThrow(() -> new ResourceNotFoundException("Shopping cart not found"));
+        log.info("Removing product with ID: {} from shopping cart with ID: {}", productId, shoppingCartId);
+        ShoppingCart shoppingCart = findShoppingCartById(shoppingCartId);
 
         ShoppingCartItem shoppingCartItem = shoppingCart.getShoppingCartItems().stream()
                 .filter(item -> item.getProductId().equals(productId))
                 .findFirst()
-                .orElseThrow(() -> new ResourceNotFoundException("Product not found in shopping cart"));
+                .orElseThrow(() -> {
+                    log.error("Product with ID: {} not found in shopping cart", productId);
+                    return new ResourceNotFoundException("Product not found in shopping cart");
+                });
 
         shoppingCart.getShoppingCartItems().remove(shoppingCartItem);
 
         shoppingCartRepository.save(shoppingCart);
+        log.info("Product with ID: {} removed from shopping cart with ID: {}", productId, shoppingCartId);
     }
 
     @Override
     @Transactional
     public CustomerOrder checkout(Long shoppingCartId) {
-        ShoppingCart shoppingCart = shoppingCartRepository.findById(shoppingCartId)
-                .orElseThrow(() -> new ResourceNotFoundException("Shopping cart not found"));
+        log.info("Checking out shopping cart with ID: {}", shoppingCartId);
+        ShoppingCart shoppingCart = findShoppingCartById(shoppingCartId);
 
         // TODO: Logic to checkout
 
         return new CustomerOrder();
+    }
+
+    private ShoppingCart findShoppingCartById(Long shoppingCartId) {
+        return shoppingCartRepository.findById(shoppingCartId)
+                .orElseThrow(() -> {
+                    log.error("Shopping cart with ID: {} not found", shoppingCartId);
+                    return new ResourceNotFoundException("Shopping cart not found");
+                });
+    }
+
+    private Product getProductFromProductId(Long productId) {
+        try {
+            return productCatalogClient.getProductById(productId);
+        } catch (FeignException.NotFound e) {
+            System.out.println("Product with ID " + productId + " not found in ProductCatalogService.");
+            return null;
+        }
     }
 
     private ShoppingCartResponse mapToShoppingCartResponse(ShoppingCart shoppingCart) {
@@ -135,14 +167,5 @@ public class ShoppingCartService implements IShoppingCartService {
                 .product(getProductFromProductId(item.getProductId()))
                 .quantity(item.getQuantity())
                 .build();
-    }
-
-    private Product getProductFromProductId(Long productId) {
-        try {
-            return productCatalogClient.getProductById(productId);
-        } catch (FeignException.NotFound e) {
-            System.out.println("Product with ID " + productId + " not found in ProductCatalogService.");
-            return null;
-        }
     }
 }

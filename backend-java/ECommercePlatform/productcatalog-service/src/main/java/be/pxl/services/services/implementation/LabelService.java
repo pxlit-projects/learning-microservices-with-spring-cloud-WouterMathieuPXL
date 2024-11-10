@@ -8,6 +8,8 @@ import be.pxl.services.repository.LabelRepository;
 import be.pxl.services.repository.ProductRepository;
 import be.pxl.services.services.ILabelService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,39 +19,47 @@ import java.util.List;
 @RequiredArgsConstructor
 public class LabelService implements ILabelService {
 
+    private static final Logger log = LoggerFactory.getLogger(LabelService.class);
+
     private final LabelRepository labelRepository;
     private final ProductRepository productRepository;
 
     @Override
     public List<LabelResponse> getAllLabels() {
+        log.info("Fetching all labels");
         return labelRepository.findAll().stream().map(this::mapToLabelResponse).toList();
     }
+
     @Override
-    public LabelResponse getLabelById(Long id) {
-        return labelRepository.findById(id).map(this::mapToLabelResponse)
-                .orElseThrow(() -> new ResourceNotFoundException("Label not found."));
+    public LabelResponse getLabelById(Long labelId) {
+        log.info("Fetching label with ID: {}", labelId);
+        return mapToLabelResponse(findLabelById(labelId));
     }
 
     @Override
     public LabelResponse createLabel(LabelRequest labelRequest) {
+        log.info("Creating a {} label with name: '{}'", labelRequest.getColor(), labelRequest.getName());
         Label label = Label.builder()
                 .name(labelRequest.getName())
                 .color(labelRequest.getColor())
                 .build();
 
         labelRepository.save(label);
+        log.info("Created a {} label with name: '{}'", labelRequest.getColor(), labelRequest.getName());
+
         return mapToLabelResponse(label);
     }
 
     @Override
-    public LabelResponse updateLabel(Long id, LabelRequest labelRequest) {
-        Label label = labelRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Label not found."));
+    public LabelResponse updateLabel(Long labelId, LabelRequest labelRequest) {
+        log.info("Updating label with ID: {}", labelId);
 
+        Label label = findLabelById(labelId);
         label.setName(labelRequest.getName());
         label.setColor(labelRequest.getColor());
 
         labelRepository.save(label);
+        log.info("Updated label with ID: {}", labelId);
 
         return mapToLabelResponse(label);
     }
@@ -57,13 +67,23 @@ public class LabelService implements ILabelService {
     @Override
     @Transactional
     public void deleteLabel(Long labelId) {
-        Label label = labelRepository.findById(labelId)
-                .orElseThrow(() -> new RuntimeException("Label not found"));
+        log.info("Deleting label with ID: {}", labelId);
+        Label label = findLabelById(labelId);
 
         // Remove the label from all associated products
         productRepository.removeLabelAssociations(labelId);
+        log.info("Removed label with ID: {} from all associated products", labelId);
 
         labelRepository.delete(label);
+        log.info("Deleted label with ID: {}", labelId);
+    }
+
+    private Label findLabelById(Long labelId) {
+        return labelRepository.findById(labelId)
+                .orElseThrow(() -> {
+                    log.error("Label with ID: {} not found", labelId);
+                    return new ResourceNotFoundException("Label not found");
+                });
     }
 
     private LabelResponse mapToLabelResponse(Label label) {
