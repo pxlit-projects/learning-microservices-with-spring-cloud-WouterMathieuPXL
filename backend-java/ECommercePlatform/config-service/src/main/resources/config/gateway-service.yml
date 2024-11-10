@@ -1,0 +1,43 @@
+server:
+  port: 8084
+
+spring:
+  cloud:
+    gateway:
+      globalCors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - "localhost"
+            allowedMethods:
+              - "*"
+            allowedHeaders:
+              - "*"
+            allowedCredentials: true
+      discovery:
+        locator:
+          enabled: true
+      routes:
+        - id: productcatalog-service
+          uri: lb://productcatalog-service
+          predicates:
+            - Path=/productcatalog/**
+          filters:
+            - RewritePath=/productcatalog/(?<path>.*), /$\{path}
+        - id: shoppingcart-service
+          uri: lb://shoppingcart-service
+          predicates:
+            - Path=/shoppingcart/**
+          filters:
+            - RewritePath=/shoppingcart/(?<path>.*), /$\{path}
+        - id: logbook-service
+          uri: lb://logbook-service
+          predicates:
+            - Path=/organization/**
+          filters:
+            - RewritePath=/logbook/(?<path>.*), /$\{path}
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8061/eureka/
