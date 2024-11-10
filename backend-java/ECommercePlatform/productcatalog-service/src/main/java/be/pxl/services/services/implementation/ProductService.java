@@ -1,5 +1,6 @@
 package be.pxl.services.services.implementation;
 
+import be.pxl.services.audit.AuditLogService;
 import be.pxl.services.domain.Label;
 import be.pxl.services.domain.Product;
 import be.pxl.services.domain.dto.ProductRequest;
@@ -25,7 +26,7 @@ public class ProductService implements IProductService {
 
     private final ProductRepository productRepository;
     private final LabelRepository labelRepository;
-
+    private final AuditLogService auditLogService;
 
     @Override
     public List<ProductResponse> getAllProducts() {
@@ -52,6 +53,10 @@ public class ProductService implements IProductService {
 
         productRepository.save(product);
         log.info("Created product with name: {}", productRequest.getName());
+
+        // Call the AuditLogService to send audit log
+        auditLogService.sendAuditLog(product.getId(), "created", "admin");
+
         return mapToProductResponse(product);
     }
 
@@ -68,6 +73,9 @@ public class ProductService implements IProductService {
         productRepository.save(product);
         log.info("Updated product with ID: {}", id);
 
+        // Call the AuditLogService to send audit log
+        auditLogService.sendAuditLog(id, "updated", "admin");
+
         return mapToProductResponse(product);
     }
 
@@ -76,6 +84,10 @@ public class ProductService implements IProductService {
         log.info("Deleting product with ID: {}", id);
         findProductById(id); // This will throw an exception if the product is not found
         productRepository.deleteById(id);
+
+        // Call the AuditLogService to send audit log
+        auditLogService.sendAuditLog(id, "deleted", "admin");
+
         log.info("Deleted product with ID: {}", id);
     }
 

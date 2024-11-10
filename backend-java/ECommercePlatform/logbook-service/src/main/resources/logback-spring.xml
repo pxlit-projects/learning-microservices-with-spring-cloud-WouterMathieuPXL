@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/base.xml"/>
+    <property name="LOG_PATH" value="logbook-service/logs/"/>
+
+    <!-- Console appender: logt naar de console -->
+    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <Pattern>%d{yyyy-MM-dd'T'HH:mm:ss.SSSZZ} %-5level %-12X{process} %-30([%thread]) %-29logger - %m%n</Pattern>
+        </encoder>
+    </appender>
+
+    <!-- File appender: logt naar een bestand -->
+    <appender name="APP_LOGGER" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}/app.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/app.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>15</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <Pattern>%d{yyyy-MM-dd'T'HH:mm:ss.SSSZZ} %-5level %-12X{process} %-30([%thread]) %-29logger - %m%n</Pattern>
+        </encoder>
+    </appender>
+
+    <!-- Root logger: bepaalt het minimale logniveau en welke appenders worden gebruikt -->
+    <logger name="be.pxl" level="DEBUG" additivity="false">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="APP_LOGGER"/>
+    </logger>
+</configuration>
