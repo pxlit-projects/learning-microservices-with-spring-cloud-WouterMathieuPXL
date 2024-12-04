@@ -17,5 +17,5 @@ public interface IProductService {
 
     void deleteProduct(Long id);
 
-    void addLabel(Long productId, Long labelId);
+//    void addLabel(Long productId, Long labelId);
 }

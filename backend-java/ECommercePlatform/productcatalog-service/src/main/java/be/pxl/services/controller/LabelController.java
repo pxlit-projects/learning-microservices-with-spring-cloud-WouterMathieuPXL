@@ -2,7 +2,6 @@ package be.pxl.services.controller;
 
 import be.pxl.services.domain.dto.LabelRequest;
 import be.pxl.services.domain.dto.LabelResponse;
-import be.pxl.services.domain.dto.ProductResponse;
 import be.pxl.services.services.ILabelService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -29,12 +28,12 @@ public class LabelController {
         return labelService.getAllLabels();
     }
 
-    @GetMapping("/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public LabelResponse getLabelByUd(@PathVariable Long id) {
-        log.info("Received request to fetch label with ID: {}", id);
-        return labelService.getLabelById(id);
-    }
+//    @GetMapping("/{id}")
+//    @ResponseStatus(HttpStatus.OK)
+//    public LabelResponse getLabelById(@PathVariable Long id) {
+//        log.info("Received request to fetch label with ID: {}", id);
+//        return labelService.getLabelById(id);
+//    }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
@@ -44,7 +43,7 @@ public class LabelController {
     }
 
     @PutMapping("/{id}")
-    @ResponseStatus(HttpStatus.ACCEPTED)
+    @ResponseStatus(HttpStatus.OK)
     public LabelResponse updateLabel(@PathVariable Long id, @RequestBody @Valid LabelRequest labelRequest) {
         log.info("Received request to update label with ID: {}", id);
         return labelService.updateLabel(id, labelRequest);

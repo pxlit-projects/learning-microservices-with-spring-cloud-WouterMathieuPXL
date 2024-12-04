@@ -44,37 +44,42 @@ public class ProductService implements IProductService {
     @Override
     public ProductResponse createProduct(ProductRequest productRequest) {
         log.info("Creating product with name: {}", productRequest.getName());
-        Product product = Product.builder()
-                .name(productRequest.getName())
-                .description(productRequest.getDescription())
-                .price(productRequest.getPrice())
-                .category(productRequest.getCategory())
-                .build();
+        ProductResponse productResponse = saveOrUpdateProduct(new Product(), productRequest);
 
-        productRepository.save(product);
         log.info("Created product with name: {}", productRequest.getName());
+        auditLogService.sendAuditLog(productResponse.getId(), "created", "admin");
 
-        auditLogService.sendAuditLog(product.getId(), "created", "admin");
-
-        return mapToProductResponse(product);
+        return productResponse;
     }
 
     @Override
     public ProductResponse updateProduct(Long id, ProductRequest productRequest) {
         log.info("Updating product with ID: {}", id);
 
-        Product product = findProductById(id);
-        product.setName(productRequest.getName());
-        product.setDescription(productRequest.getDescription());
-        product.setPrice(productRequest.getPrice());
-        product.setCategory(productRequest.getCategory());
+        Product existingProduct = findProductById(id);
+        ProductResponse productResponse = saveOrUpdateProduct(existingProduct, productRequest);
 
-        productRepository.save(product);
         log.info("Updated product with ID: {}", id);
-
         auditLogService.sendAuditLog(id, "updated", "admin");
 
-        return mapToProductResponse(product);
+        return productResponse;
+    }
+
+    private ProductResponse saveOrUpdateProduct(Product product, ProductRequest productRequest) {
+        Product updatedProduct = Product.builder()
+                .id(product.getId())
+                .name(productRequest.getName())
+                .description(productRequest.getDescription())
+                .price(productRequest.getPrice())
+                .category(productRequest.getCategory())
+                .build();
+
+        List<Label> labels = labelRepository.findAllById(productRequest.getLabelIds());
+        updatedProduct.setLabels(new HashSet<>(labels));
+
+        productRepository.save(updatedProduct);
+
+        return mapToProductResponse(updatedProduct);
     }
 
     @Override
@@ -88,20 +93,20 @@ public class ProductService implements IProductService {
         log.info("Deleted product with ID: {}", id);
     }
 
-    @Override
-    public void addLabel(Long productId, Long labelId) {
-        log.info("Adding label with ID: {} to product with ID: {}", labelId, productId);
-        Product product = findProductById(productId);
-        Label label = labelRepository.findById(labelId)
-                .orElseThrow(() -> {
-                    log.error("Label with ID: {} not found", labelId);
-                    return new ResourceNotFoundException("Product not found");
-                });
-
-        product.getLabels().add(label);
-        log.info("Added label with ID: {} to product with ID: {}", labelId, productId);
-        productRepository.save(product);
-    }
+//    @Override
+//    public void addLabel(Long productId, Long labelId) {
+//        log.info("Adding label with ID: {} to product with ID: {}", labelId, productId);
+//        Product product = findProductById(productId);
+//        Label label = labelRepository.findById(labelId)
+//                .orElseThrow(() -> {
+//                    log.error("Label with ID: {} not found", labelId);
+//                    return new ResourceNotFoundException("Product not found");
+//                });
+//
+//        product.getLabels().add(label);
+//        log.info("Added label with ID: {} to product with ID: {}", labelId, productId);
+//        productRepository.save(product);
+//    }
 
     private Product findProductById(Long id) {
         return productRepository.findById(id)
@@ -112,9 +117,9 @@ public class ProductService implements IProductService {
     }
 
     ProductResponse mapToProductResponse(Product product) {
-        if (product.getLabels() == null) {
-            product.setLabels(new HashSet<>());
-        }
+//        if (product.getLabels() == null) {
+//            product.setLabels(new HashSet<>());
+//        }
 
         return ProductResponse.builder()
                 .id(product.getId())

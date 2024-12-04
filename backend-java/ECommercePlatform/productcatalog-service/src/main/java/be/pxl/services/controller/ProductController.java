@@ -50,12 +50,12 @@ public class ProductController {
         return productService.updateProduct(id, productRequest);
     }
 
-    @PutMapping("/{productId}/label/{labelId}")
-    @ResponseStatus(HttpStatus.ACCEPTED)
-    public void addLabelToProduct(@PathVariable Long productId, @PathVariable Long labelId) {
-        log.info("Received request to add label with ID: {} to product with ID: {}", labelId, productId);
-        productService.addLabel(productId, labelId);
-    }
+//    @PutMapping("/{productId}/label/{labelId}")
+//    @ResponseStatus(HttpStatus.ACCEPTED)
+//    public void addLabelToProduct(@PathVariable Long productId, @PathVariable Long labelId) {
+//        log.info("Received request to add label with ID: {} to product with ID: {}", labelId, productId);
+//        productService.addLabel(productId, labelId);
+//    }
 
     @DeleteMapping("/delete/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)

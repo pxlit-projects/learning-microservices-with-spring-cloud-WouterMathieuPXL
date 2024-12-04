@@ -9,7 +9,7 @@ import java.util.List;
 public interface ILabelService {
 
     List<LabelResponse> getAllLabels();
-    LabelResponse getLabelById(Long id);
+    //LabelResponse getLabelById(Long id);
 
     LabelResponse createLabel(LabelRequest label);
 

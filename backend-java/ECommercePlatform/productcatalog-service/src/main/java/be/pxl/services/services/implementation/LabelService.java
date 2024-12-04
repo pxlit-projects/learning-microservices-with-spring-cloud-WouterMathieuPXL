@@ -30,11 +30,11 @@ public class LabelService implements ILabelService {
         return labelRepository.findAll().stream().map(this::mapToLabelResponse).toList();
     }
 
-    @Override
-    public LabelResponse getLabelById(Long labelId) {
-        log.info("Fetching label with ID: {}", labelId);
-        return mapToLabelResponse(findLabelById(labelId));
-    }
+//    @Override
+//    public LabelResponse getLabelById(Long labelId) {
+//        log.info("Fetching label with ID: {}", labelId);
+//        return mapToLabelResponse(findLabelById(labelId));
+//    }
 
     @Override
     public LabelResponse createLabel(LabelRequest labelRequest) {
@@ -69,7 +69,7 @@ public class LabelService implements ILabelService {
     public void deleteLabel(Long labelId) {
         log.info("Deleting label with ID: {}", labelId);
         Label label = findLabelById(labelId);
-
+        System.out.println(label);
         // Remove the label from all associated products
         productRepository.removeLabelAssociations(labelId);
         log.info("Removed label with ID: {} from all associated products", labelId);

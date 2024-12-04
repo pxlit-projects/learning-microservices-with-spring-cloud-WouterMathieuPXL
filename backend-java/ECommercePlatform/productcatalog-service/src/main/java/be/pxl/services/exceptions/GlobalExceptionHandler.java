@@ -4,7 +4,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -20,9 +19,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<List<String>> handleValidationErrors(MethodArgumentNotValidException ex) {
         List<String> errors = new ArrayList<>();
-        for (ObjectError error : ex.getBindingResult().getAllErrors()) {
-            errors.add(error.getDefaultMessage());
-        }
+        ex.getBindingResult().getFieldErrors().forEach(error -> {
+            String errorMessage = String.format("%s: %s", error.getField(), error.getDefaultMessage());
+            errors.add(errorMessage);
+        });
         log.error("Validation errors: {}", errors);
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
@@ -33,9 +33,9 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> handleGeneralException(Exception ex) {
-        log.error("An unexpected error occurred: {}", ex.getMessage());
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+//    @ExceptionHandler(Exception.class)
+//    public ResponseEntity<String> handleGeneralException(Exception ex) {
+//        log.error("An unexpected error occurred: {}", ex.getMessage());
+//        return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+//    }
 }
