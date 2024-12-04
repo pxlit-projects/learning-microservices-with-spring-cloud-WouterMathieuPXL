@@ -1,15 +1,10 @@
 package be.pxl.services.domain.dto;
 
 import be.pxl.services.domain.Product;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-@Data
+@Getter
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class ShoppingCartItemResponse {
 
     private Long id;
