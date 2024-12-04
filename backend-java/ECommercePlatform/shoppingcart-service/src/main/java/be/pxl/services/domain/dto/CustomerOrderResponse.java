@@ -10,6 +10,7 @@ import java.util.List;
 public class CustomerOrderResponse {
 
     private Long id;
+    private Long shoppingCartId;
     private LocalDateTime dateTime;
     private List<OrderItemResponse> orderItems;
 }

@@ -35,6 +35,7 @@ public class ShoppingCartMapper {
     public static CustomerOrderResponse mapCustomerOrderToCustomerOrderResponse(CustomerOrder customerOrder) {
         return CustomerOrderResponse.builder()
                 .id(customerOrder.getId())
+                .shoppingCartId(customerOrder.getShoppingCartId())
                 .dateTime(customerOrder.getDateTime())
                 .orderItems(
                         customerOrder.getOrderItems().stream()

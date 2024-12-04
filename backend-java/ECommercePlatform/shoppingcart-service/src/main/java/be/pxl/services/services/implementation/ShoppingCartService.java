@@ -56,7 +56,7 @@ public class ShoppingCartService implements IShoppingCartService {
     }
 
     private void addProductToShoppingCart(ShoppingCart shoppingCart, Product product, int quantity) {
-        shoppingCart.getShoppingCartItems().add(ShoppingCartItem.builder()
+        shoppingCart.addShoppingCartItem(ShoppingCartItem.builder()
                 .shoppingCart(shoppingCart)
                 .productId(product.getId())
                 .quantity(quantity)
@@ -66,8 +66,8 @@ public class ShoppingCartService implements IShoppingCartService {
 
     private void updateProductQuantityInShoppingCart(ShoppingCartItem shoppingCartItem, Long productId, int quantity) {
         shoppingCartItem.setQuantity(quantity);
-        log.info("Product with ID {} updated in shopping cart with ID {}", productId,
-                shoppingCartItem.getShoppingCart().getId());
+        log.info("Quantity of product with ID {} updated to {}x in shopping cart with ID {}"
+                , productId, quantity, shoppingCartItem.getShoppingCart().getId());
     }
 
     private void removeProductFromShoppingCart(ShoppingCart shoppingCart, ShoppingCartItem shoppingCartItem) {

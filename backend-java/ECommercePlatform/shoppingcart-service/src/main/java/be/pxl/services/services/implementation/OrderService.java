@@ -36,6 +36,7 @@ public class OrderService implements IOrderService {
         shoppingCartHelper.removeNonExistingProductsFromShoppingCart(shoppingCart);
 
         CustomerOrder customerOrder = CustomerOrder.builder()
+                .shoppingCartId(shoppingCartId)
                 .dateTime(LocalDateTime.now())
                 .build();
         addOrderItemsToOrder(shoppingCart, customerOrder);

@@ -16,16 +16,16 @@ public class GlobalExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<List<String>> handleValidationErrors(MethodArgumentNotValidException ex) {
-        List<String> errors = new ArrayList<>();
-        ex.getBindingResult().getFieldErrors().forEach(error -> {
-            String errorMessage = String.format("%s: %s", error.getField(), error.getDefaultMessage());
-            errors.add(errorMessage);
-        });
-        log.error("Validation errors: {}", errors);
-        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
-    }
+//    @ExceptionHandler(MethodArgumentNotValidException.class)
+//    public ResponseEntity<List<String>> handleValidationErrors(MethodArgumentNotValidException ex) {
+//        List<String> errors = new ArrayList<>();
+//        ex.getBindingResult().getFieldErrors().forEach(error -> {
+//            String errorMessage = String.format("%s: %s", error.getField(), error.getDefaultMessage());
+//            errors.add(errorMessage);
+//        });
+//        log.error("Validation errors: {}", errors);
+//        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+//    }
 
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<String> handleResourceNotFoundException(ResourceNotFoundException ex) {

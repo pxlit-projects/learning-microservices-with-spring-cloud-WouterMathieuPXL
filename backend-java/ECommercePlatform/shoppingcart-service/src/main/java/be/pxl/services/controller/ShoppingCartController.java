@@ -29,13 +29,13 @@ public class ShoppingCartController {
 
     @PutMapping("/{shoppingCartId}/products/{productId}")
     @ResponseStatus(HttpStatus.OK)
-    // url: /api/shoppingCart/{shoppingCartId}/products?productId={productId}&quantity={quantity}
+    // url: /api/shoppingCart/{shoppingCartId}/products/{productId}?quantity={quantity}
     public ShoppingCartResponse editProductInShoppingCart(
             @PathVariable Long shoppingCartId,
             @PathVariable Long productId,
             @RequestParam int quantity) {
         log.info("Received request to edit shopping cart with ID {}: {}x product with ID {}",
-                productId, quantity, shoppingCartId);
+                shoppingCartId, quantity, productId);
         return shoppingCartService.editProductInShoppingCart(shoppingCartId, productId, quantity);
     }
 

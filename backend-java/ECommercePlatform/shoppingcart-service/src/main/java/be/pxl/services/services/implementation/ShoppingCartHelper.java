@@ -6,7 +6,6 @@ import be.pxl.services.domain.ShoppingCart;
 import be.pxl.services.domain.ShoppingCartItem;
 import be.pxl.services.exceptions.ResourceNotFoundException;
 import be.pxl.services.repository.ShoppingCartRepository;
-import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +31,7 @@ public class ShoppingCartHelper {
     public Product getProductFromProductId(Long productId) {
         try {
             return productCatalogClient.getProductById(productId);
-        } catch (FeignException.NotFound e) {
+        } catch (Exception e) {
             log.error("Product with ID: {} not found in catalog", productId);
             throw new ResourceNotFoundException("Product not found in catalog");
         }

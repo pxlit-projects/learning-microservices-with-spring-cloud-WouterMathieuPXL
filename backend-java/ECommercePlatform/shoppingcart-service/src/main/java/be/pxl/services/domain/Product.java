@@ -3,11 +3,8 @@ package be.pxl.services.domain;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Data
 @Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
+@Builder
 public class Product {
 
     private Long id;
