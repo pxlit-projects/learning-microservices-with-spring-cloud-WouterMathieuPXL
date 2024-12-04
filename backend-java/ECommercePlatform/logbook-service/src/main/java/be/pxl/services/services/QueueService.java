@@ -15,13 +15,13 @@ public class QueueService {
     private final AuditLogService auditLogService;
 
     @RabbitListener(queues = "auditQueue")
-    public void listen(AuditLogRequest auditLog) {
-        logger.info("Received message from auditQueue: {}", auditLog);
+    public void listen(AuditLogRequest auditLogRequest) {
+        logger.info("Received message from auditQueue: {}", auditLogRequest);
         auditLogService.log(
-                auditLog.getProductId(),
-                auditLog.getAction(),
-                auditLog.getPerformedBy(),
-                auditLog.getTimestamp());
+                auditLogRequest.getProductId(),
+                auditLogRequest.getAction(),
+                auditLogRequest.getPerformedBy(),
+                auditLogRequest.getTimestamp());
         logger.info("Audit log processed successfully");
     }
 }

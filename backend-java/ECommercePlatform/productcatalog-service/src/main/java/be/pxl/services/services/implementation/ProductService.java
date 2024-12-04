@@ -54,7 +54,6 @@ public class ProductService implements IProductService {
         productRepository.save(product);
         log.info("Created product with name: {}", productRequest.getName());
 
-        // Call the AuditLogService to send audit log
         auditLogService.sendAuditLog(product.getId(), "created", "admin");
 
         return mapToProductResponse(product);
@@ -73,7 +72,6 @@ public class ProductService implements IProductService {
         productRepository.save(product);
         log.info("Updated product with ID: {}", id);
 
-        // Call the AuditLogService to send audit log
         auditLogService.sendAuditLog(id, "updated", "admin");
 
         return mapToProductResponse(product);
@@ -85,7 +83,6 @@ public class ProductService implements IProductService {
         findProductById(id); // This will throw an exception if the product is not found
         productRepository.deleteById(id);
 
-        // Call the AuditLogService to send audit log
         auditLogService.sendAuditLog(id, "deleted", "admin");
 
         log.info("Deleted product with ID: {}", id);
