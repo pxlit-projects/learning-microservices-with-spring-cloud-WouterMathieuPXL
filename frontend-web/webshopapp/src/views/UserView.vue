@@ -8,7 +8,7 @@
         ></v-text-field>
 
         <v-select
-            :items="[ { key: null, value: 'Categorieën' }, ...store.categories ]"
+            :items="[ { key: null, value: 'Categorieën' }, ...productCatalogStore.categories ]"
             item-value="key"
             item-title="value"
             v-model="selectedCategory"
@@ -29,7 +29,7 @@
                         multiple
                         v-model="selectedLabels"
                     >
-                        <v-chip filter v-for="label in store.labels"
+                        <v-chip filter v-for="label in productCatalogStore.labels"
                                 :key="label.id"
                                 :value="label.id"
                                 :style="{ backgroundColor: label.color.toLowerCase() }">
@@ -46,20 +46,22 @@
 </template>
 
 <script setup>
-import {productCatalogStore} from '@/stores/productcatalogstore';
+import {useProductCatalogStore} from '@/stores/useProductCatalogStore.js';
+import {useShoppingCartStore} from "@/stores/useShoppingCartStore.js";
 
 import {computed, onMounted, ref} from "vue";
 import Product from "@/components/Product.vue";
 
-const store = productCatalogStore();
+const productCatalogStore = useProductCatalogStore();
+const shoppingCartStore = useShoppingCartStore();
 
 onMounted(async () => {
-    await store.getProductCatalog();
-    await store.getLabels();
-    await store.getCategories();
+    await productCatalogStore.getProductCatalog();
+    await productCatalogStore.getLabels();
+    await productCatalogStore.getCategories();
+    await shoppingCartStore.getShoppingCart();
 
-    console.log("Categories in Component:", store.categories);
-
+    console.log("Categories in Component:", productCatalogStore.categories);
 });
 
 const searchQuery = ref("");
@@ -71,7 +73,7 @@ const filteredProducts = computed(() => {
     console.log("Search Category:", selectedCategory.value);
     console.log("Selected Labels (Value):", selectedLabels.value);
 
-    return store.products.filter((product) => {
+    return productCatalogStore.products.filter((product) => {
             const matchesName = `${product.name} ${product.description}`
                 .toLowerCase()
                 .includes(searchQuery.value.toLowerCase());

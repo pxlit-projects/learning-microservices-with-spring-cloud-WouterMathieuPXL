@@ -6,6 +6,13 @@
             <nav>
                 <RouterLink to="/">Admin</RouterLink>
                 <RouterLink to="/user">User</RouterLink>
+                <v-badge
+                    :content="quantity"
+                    overlap
+                    color="red"
+                >
+                    <v-btn icon="mdi-cart" :to="'/shoppingcart'" plain/>
+                </v-badge>
             </nav>
         </div>
     </header>
@@ -15,4 +22,11 @@
 
 <script setup>
 import {RouterLink, RouterView} from 'vue-router'
+
+import {useShoppingCartStore} from "@/stores/useShoppingCartStore.js";
+import {computed} from "vue";
+
+const shoppingCartStore = useShoppingCartStore();
+
+const quantity = computed(() => shoppingCartStore.totalQuantity);
 </script>

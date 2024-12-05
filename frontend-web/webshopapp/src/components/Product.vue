@@ -15,7 +15,7 @@
         </v-card-item>
         <v-card-actions>
 
-            <v-btn prepend-icon="mdi-plus">
+            <v-btn prepend-icon="mdi-plus" @click="shoppingCartStore.plusProduct(product.id)">
                 Add to Cart
             </v-btn>
         </v-card-actions>
@@ -24,8 +24,9 @@
 
 <script setup>
 import '@mdi/font/css/materialdesignicons.css';
+import {useShoppingCartStore} from "@/stores/useShoppingCartStore.js";
 
-
+const shoppingCartStore = useShoppingCartStore();
 
 const props = defineProps({
     product: Object

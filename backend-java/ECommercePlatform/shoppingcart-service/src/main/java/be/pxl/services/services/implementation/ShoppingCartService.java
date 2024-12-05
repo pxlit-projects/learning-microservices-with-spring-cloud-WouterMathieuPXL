@@ -26,6 +26,8 @@ public class ShoppingCartService implements IShoppingCartService {
     public ShoppingCartResponse getShoppingCartById(Long shoppingCartId) {
         log.info("Fetching shopping cart with ID: {}", shoppingCartId);
         ShoppingCart shoppingCart = shoppingCartHelper.findShoppingCartById(shoppingCartId);
+        shoppingCartHelper.fetchProductForShoppingCartItems(shoppingCart);
+
         return mapToShoppingCartResponse(shoppingCart);
     }
 

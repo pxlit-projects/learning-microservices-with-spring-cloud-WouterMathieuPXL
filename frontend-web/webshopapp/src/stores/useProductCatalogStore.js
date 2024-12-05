@@ -3,7 +3,7 @@ import axios from "axios";
 
 const url = 'http://localhost:8081/api/productcatalog';
 
-export const productCatalogStore = defineStore('productCatalog', {
+export const useProductCatalogStore = defineStore('productCatalog', {
 
     state: () => ({
         error: "",
