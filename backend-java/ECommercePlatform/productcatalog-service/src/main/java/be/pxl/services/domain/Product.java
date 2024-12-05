@@ -37,6 +37,8 @@ public class Product {
     )
     private Set<Label> labels = new HashSet<>();
 
+    private String imageUrl;
+
 //    public void addLabel(Label label) {
 //        labels.add(label);
 //    }

@@ -16,4 +16,5 @@ public class ProductResponse {
     private double price;
     private Category category;
     private List<Label> labels;
+    private String imageUrl;
 }

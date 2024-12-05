@@ -1,6 +1,5 @@
 package be.pxl.services.controller;
 
-import be.pxl.services.domain.Product;
 import be.pxl.services.domain.dto.ProductRequest;
 import be.pxl.services.domain.dto.ProductResponse;
 import be.pxl.services.services.IProductService;
@@ -10,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -36,16 +36,17 @@ public class ProductController {
         return productService.getProductById(id);
     }
 
-    @PostMapping
+    @PostMapping(consumes = {"multipart/form-data"})
     @ResponseStatus(HttpStatus.CREATED)
-    public ProductResponse createProduct(@RequestBody @Valid ProductRequest productRequest) {
+    public ProductResponse createProduct(@ModelAttribute @Valid ProductRequest productRequest) {
         log.info("Received request to create a new product");
+        log.info("Image received: {}", productRequest.getImage().getOriginalFilename());
         return productService.createProduct(productRequest);
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public ProductResponse updateProduct(@PathVariable Long id, @RequestBody @Valid ProductRequest productRequest) {
+    public ProductResponse updateProduct(@PathVariable Long id, @ModelAttribute @Valid ProductRequest productRequest) {
         log.info("Received request to update product with ID: {}", id);
         return productService.updateProduct(id, productRequest);
     }
@@ -59,7 +60,7 @@ public class ProductController {
 
     @DeleteMapping("/delete/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteProduct(@PathVariable Long id){
+    public void deleteProduct(@PathVariable Long id) {
         log.info("Received request to delete product with ID: {}", id);
         productService.deleteProduct(id);
     }

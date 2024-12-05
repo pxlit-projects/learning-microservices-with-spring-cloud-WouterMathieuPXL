@@ -8,6 +8,7 @@ import be.pxl.services.domain.dto.ProductResponse;
 import be.pxl.services.exceptions.ResourceNotFoundException;
 import be.pxl.services.repository.LabelRepository;
 import be.pxl.services.repository.ProductRepository;
+import be.pxl.services.services.IImageService;
 import be.pxl.services.services.IProductService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -26,6 +27,7 @@ public class ProductService implements IProductService {
 
     private final ProductRepository productRepository;
     private final LabelRepository labelRepository;
+    private final IImageService imageService;
     private final AuditLogService auditLogService;
 
     @Override
@@ -66,12 +68,15 @@ public class ProductService implements IProductService {
     }
 
     private ProductResponse saveOrUpdateProduct(Product product, ProductRequest productRequest) {
+        String imageUrl = imageService.storeImage(productRequest.getImage());
+
         Product updatedProduct = Product.builder()
                 .id(product.getId())
                 .name(productRequest.getName())
                 .description(productRequest.getDescription())
                 .price(productRequest.getPrice())
                 .category(productRequest.getCategory())
+                .imageUrl(imageUrl)
                 .build();
 
         List<Label> labels = labelRepository.findAllById(productRequest.getLabelIds());
@@ -128,6 +133,7 @@ public class ProductService implements IProductService {
                 .price(product.getPrice())
                 .category(product.getCategory())
                 .labels(new ArrayList<>(product.getLabels()))
+                .imageUrl(product.getImageUrl())
                 .build();
     }
 }
