@@ -27,6 +27,6 @@ public class ProductRequest {
     private Category category;
     @NotNull
     private List<Long> labelIds;
-
+    @NotNull
     private MultipartFile image;
 }

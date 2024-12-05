@@ -4,6 +4,7 @@
         <div class="wrapper">
 
             <nav>
+
                 <RouterLink to="/">Admin</RouterLink>
                 <RouterLink to="/user">User</RouterLink>
                 <v-badge
@@ -29,4 +30,11 @@ import {computed} from "vue";
 const shoppingCartStore = useShoppingCartStore();
 
 const quantity = computed(() => shoppingCartStore.totalQuantity);
+
+
 </script>
+
+<style scoped>
+
+
+</style>

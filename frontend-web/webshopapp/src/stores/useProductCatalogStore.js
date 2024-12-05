@@ -55,6 +55,25 @@ export const useProductCatalogStore = defineStore('productCatalog', {
             } finally {
                 this.loading = false;
             }
+        },
+        async createProduct(formData) {
+            this.error = "";
+            this.loading = true;
+            try {
+                const response = await axios.post(url,
+                    formData, {
+                        headers: {
+                            'Content-Type': 'multipart/form-data',
+                        },
+                    });
+
+                console.log(response.data);
+            } catch (error) {
+                console.log(error);
+                this.error = error.message || 'Failed to fetch data';
+            } finally {
+                this.loading = false;
+            }
         }
     }
 });

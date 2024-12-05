@@ -38,7 +38,7 @@ public class ImageService implements IImageService {
             Files.copy(image.getInputStream(), filePath);
             log.info("Image saved successfully to {}", filePath.toString());
 
-            return filePath.toString();
+            return newFileName;
         } catch (IOException ex) {
             log.error("Error while saving the image", ex);
             throw new RuntimeException("Error while saving the image", ex);
