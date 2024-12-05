@@ -15,8 +15,17 @@
         </v-card-item>
         <v-card-actions>
 
-            <v-btn prepend-icon="mdi-plus" @click="shoppingCartStore.plusProduct(product.id)">
+
+            <v-btn v-if="!userStore.isAdmin" prepend-icon="mdi-plus" @click="shoppingCartStore.plusProduct(product.id)">
                 Add to Cart
+            </v-btn>
+
+
+            <v-btn v-if="userStore.isAdmin" prepend-icon="mdi-pencil" @click="productCatalogStore.editProduct(product.id)">
+                Edit product
+            </v-btn>
+            <v-btn v-if="userStore.isAdmin" prepend-icon="mdi-delete" @click="productCatalogStore.deleteProduct(product.id)">
+                Delete product
             </v-btn>
         </v-card-actions>
     </v-card>
@@ -25,7 +34,11 @@
 <script setup>
 import '@mdi/font/css/materialdesignicons.css';
 import {useShoppingCartStore} from "@/stores/useShoppingCartStore.js";
+import {useUserStore} from "@/stores/userStore.js";
+import {useProductCatalogStore} from "@/stores/useProductCatalogStore.js";
 
+const userStore = useUserStore();
+const productCatalogStore = useProductCatalogStore();
 const shoppingCartStore = useShoppingCartStore();
 
 const props = defineProps({

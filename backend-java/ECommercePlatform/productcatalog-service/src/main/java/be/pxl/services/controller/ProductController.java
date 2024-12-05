@@ -51,7 +51,7 @@ public class ProductController {
         return productService.updateProduct(id, productRequest);
     }
 
-    @DeleteMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteProduct(@PathVariable Long id) {
         log.info("Received request to delete product with ID: {}", id);

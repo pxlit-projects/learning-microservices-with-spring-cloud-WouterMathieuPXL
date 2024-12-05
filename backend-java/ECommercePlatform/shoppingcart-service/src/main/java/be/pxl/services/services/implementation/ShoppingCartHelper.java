@@ -11,6 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import java.util.Iterator;
+
 @Component
 @RequiredArgsConstructor
 public class ShoppingCartHelper {
@@ -38,9 +40,15 @@ public class ShoppingCartHelper {
     }
 
     public void fetchProductForShoppingCartItems(ShoppingCart shoppingCart) {
-        shoppingCart.getShoppingCartItems().forEach(cartItem ->
-                cartItem.setProduct(productCatalogClient.getProductById(cartItem.getProductId()))
-        );
+        Iterator<ShoppingCartItem> iterator = shoppingCart.getShoppingCartItems().iterator();
+        while (iterator.hasNext()) {
+            ShoppingCartItem cartItem = iterator.next();
+            try {
+                cartItem.setProduct(productCatalogClient.getProductById(cartItem.getProductId()));
+            } catch (Exception e) {
+                iterator.remove();
+            }
+        }
     }
 
     public void removeNonExistingProductsFromShoppingCart(ShoppingCart shoppingCart) {

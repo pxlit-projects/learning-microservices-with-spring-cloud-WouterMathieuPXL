@@ -74,6 +74,20 @@ export const useProductCatalogStore = defineStore('productCatalog', {
             } finally {
                 this.loading = false;
             }
+        },
+        async deleteProduct(id) {
+            this.error = "";
+            this.loading = true;
+            try {
+                const response = await axios.delete(`${url}/${id}`);
+                console.log(response.data);
+                this.products = this.products.filter(product => product.id !== id);
+            } catch (error) {
+                console.log(error);
+                this.error = error.message || 'Failed to fetch data';
+            } finally {
+                this.loading = false;
+            }
         }
     }
 });
