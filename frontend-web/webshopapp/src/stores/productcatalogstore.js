@@ -19,7 +19,20 @@ export const productCatalogStore = defineStore('productCatalog', {
             try {
                 const response = await axios.get(url);
                 this.products = response.data;
-                console.log("sgsg");
+                console.log(response.data);
+            } catch (error) {
+                console.log(error);
+                this.error = error.message || 'Failed to fetch data';
+            } finally {
+                this.loading = false;
+            }
+        },
+        async getLabels() {
+            this.error = "";
+            this.loading = true;
+            try {
+                const response = await axios.get(`${url}/labels`);
+                this.labels = response.data;
                 console.log(response.data);
             } catch (error) {
                 console.log(error);
