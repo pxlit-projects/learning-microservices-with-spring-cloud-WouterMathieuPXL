@@ -4,6 +4,7 @@ import be.pxl.services.domain.dto.ProductRequest;
 import be.pxl.services.domain.dto.ProductResponse;
 
 import java.util.List;
+import java.util.Map;
 
 public interface IProductService {
 
@@ -17,5 +18,5 @@ public interface IProductService {
 
     void deleteProduct(Long id);
 
-//    void addLabel(Long productId, Long labelId);
+    Map<String, String> getAllCategories();
 }

@@ -9,9 +9,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/productcatalog")
@@ -51,17 +51,17 @@ public class ProductController {
         return productService.updateProduct(id, productRequest);
     }
 
-//    @PutMapping("/{productId}/label/{labelId}")
-//    @ResponseStatus(HttpStatus.ACCEPTED)
-//    public void addLabelToProduct(@PathVariable Long productId, @PathVariable Long labelId) {
-//        log.info("Received request to add label with ID: {} to product with ID: {}", labelId, productId);
-//        productService.addLabel(productId, labelId);
-//    }
-
     @DeleteMapping("/delete/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteProduct(@PathVariable Long id) {
         log.info("Received request to delete product with ID: {}", id);
         productService.deleteProduct(id);
+    }
+
+    @GetMapping("/categories")
+    @ResponseStatus(HttpStatus.OK)
+    public Map<String, String> getAllCategories() {
+        log.info("Received request to fetch all categories");
+        return productService.getAllCategories();
     }
 }

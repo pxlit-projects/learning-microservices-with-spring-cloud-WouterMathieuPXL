@@ -1,11 +1,20 @@
 <template>
     <main>
         <v-text-field
-            label="Zoeken"
             prepend-inner-icon="mdi-magnify"
             solo
             hide-details
+            v-model="searchQuery"
         ></v-text-field>
+
+        <v-select
+            :items="[ { key: null, value: 'Categorieën' }, ...store.categories ]"
+            item-value="key"
+            item-title="value"
+            v-model="selectedCategory"
+            solo
+            hide-details
+        ></v-select>
 
         <v-expansion-panels>
             <v-expansion-panel>
@@ -47,23 +56,39 @@ const store = productCatalogStore();
 onMounted(async () => {
     await store.getProductCatalog();
     await store.getLabels();
+    await store.getCategories();
+
+    console.log("Categories in Component:", store.categories);
+
 });
-const selectedLabels = ref([]); // Geselecteerde labels
+
+const searchQuery = ref("");
+const selectedCategory = ref(null);
+const selectedLabels = ref([]);
 
 const filteredProducts = computed(() => {
-    console.log("Selected Labels (Proxy):", selectedLabels);
+    console.log("Search Query:", searchQuery.value);
+    console.log("Search Category:", selectedCategory.value);
     console.log("Selected Labels (Value):", selectedLabels.value);
 
-    if (selectedLabels.value.length === 0) {
-        return store.products;
-    }
+    return store.products.filter((product) => {
+            const matchesName = `${product.name} ${product.description}`
+                .toLowerCase()
+                .includes(searchQuery.value.toLowerCase());
 
-    return store.products.filter((product) =>
-        product.labels.some((label) =>
-            selectedLabels.value.includes(label.id)
-        )
+            const matchesCategory =
+                selectedCategory.value === null ||
+                product.category === selectedCategory.value;
+
+            const matchesLabels =
+                selectedLabels.value.length === 0 ||
+                product.labels.some((label) =>
+                    selectedLabels.value.includes(label.id)
+                );
+
+            return matchesName && matchesCategory && matchesLabels;
+        }
     );
 });
-
 
 </script>

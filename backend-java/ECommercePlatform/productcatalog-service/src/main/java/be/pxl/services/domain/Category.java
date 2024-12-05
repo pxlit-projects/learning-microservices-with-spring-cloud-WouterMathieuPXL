@@ -1,15 +1,25 @@
 package be.pxl.services.domain;
 
 public enum Category {
-    KLEDING,
-    ZERO_WASTE,
-    VERZORGING,
-    HUISHOUDEN,
-    WELLNESS,
-    KANTOOR,
-    MEUBELS,
-    ELEKTRONICA,
-    SPEELGOED,
-    VOEDING,
-    SPORT
+    KLEDING("Kleding"),
+    ZERO_WASTE("Zero Waste"),
+    VERZORGING("Verzorging"),
+    HUISHOUDEN("Huishouden"),
+    WELLNESS("Wellness"),
+    KANTOOR("Kantoor"),
+    MEUBELS("Meubels"),
+    ELEKTRONICA("Elektronica"),
+    SPEELGOED("Speelgoed"),
+    VOEDING("Voeding"),
+    SPORT("Sport");
+
+    private final String displayName;
+
+    Category(String displayName) {
+        this.displayName = displayName;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
 }

@@ -1,6 +1,7 @@
 package be.pxl.services.services.implementation;
 
 import be.pxl.services.audit.AuditLogService;
+import be.pxl.services.domain.Category;
 import be.pxl.services.domain.Label;
 import be.pxl.services.domain.Product;
 import be.pxl.services.domain.dto.ProductRequest;
@@ -15,9 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -98,6 +98,13 @@ public class ProductService implements IProductService {
         log.info("Deleted product with ID: {}", id);
     }
 
+    @Override
+    public Map<String, String> getAllCategories() {
+        log.info("Fetching all categories");
+        return Arrays.stream(Category.values())
+                .collect(Collectors.toMap(Enum::name, Category::getDisplayName));
+    }
+
 //    @Override
 //    public void addLabel(Long productId, Long labelId) {
 //        log.info("Adding label with ID: {} to product with ID: {}", labelId, productId);
@@ -136,4 +143,6 @@ public class ProductService implements IProductService {
                 .imageUrl(product.getImageUrl())
                 .build();
     }
+    
+    
 }
