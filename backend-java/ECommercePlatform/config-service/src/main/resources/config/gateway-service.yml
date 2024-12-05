@@ -36,7 +36,10 @@ spring:
             - Path=/organization/**
           filters:
             - RewritePath=/logbook/(?<path>.*), /$\{path}
-
+        - id: images
+          uri: lb://productcatalog-service
+          predicates:
+            - Path=/images/**
 eureka:
   client:
     serviceUrl:

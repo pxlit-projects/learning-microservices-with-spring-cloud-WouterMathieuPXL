@@ -1,7 +1,7 @@
 import {defineStore} from 'pinia'
 import axios from "axios";
 
-const url = 'http://localhost:8081/api/productcatalog';
+const url = 'http://localhost:8084/productcatalog/api/productcatalog';
 
 export const useProductCatalogStore = defineStore('productCatalog', {
 

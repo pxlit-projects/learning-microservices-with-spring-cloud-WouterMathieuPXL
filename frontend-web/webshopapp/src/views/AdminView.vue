@@ -56,7 +56,6 @@ const product = reactive({
 });
 
 const submitProduct = async () => {
-    console.log("start1");
     const formData = new FormData();
     formData.append('name', product.name);
     formData.append('description', product.description);

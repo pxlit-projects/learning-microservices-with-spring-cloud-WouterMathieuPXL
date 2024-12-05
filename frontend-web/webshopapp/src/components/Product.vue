@@ -6,7 +6,7 @@
         </v-card-subtitle>
         <v-card-item>
             <img class="product-image" v-if="product.imageUrl" width="150"
-                 :src="`http://localhost:8081/images/${product.imageUrl}`" alt="{{ product.name }}"/>
+                 :src="`http://localhost:8084/images/${product.imageUrl}`" alt="{{ product.name }}"/>
             <div v-else class="product-image no-image"/>
         </v-card-item>
         <v-card-item>{{ product.description }}</v-card-item>

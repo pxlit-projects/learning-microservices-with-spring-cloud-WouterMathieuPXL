@@ -1,7 +1,7 @@
 import {defineStore} from 'pinia'
 import axios from "axios";
 
-const url = 'http://localhost:8082/api/shoppingcart';
+const url = 'http://localhost:8084/shoppingcart/api/shoppingcart';
 
 export const useShoppingCartStore = defineStore('shoppingCart', {
 
