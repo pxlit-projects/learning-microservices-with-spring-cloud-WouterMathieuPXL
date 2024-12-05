@@ -12,7 +12,8 @@ export const useShoppingCartStore = defineStore('shoppingCart', {
         shoppingCart: {},
         totalQuantity: 0,
         totalPrice: 0,
-        order: {}
+        order: {},
+        orderPrice: 0
     }),
 
     actions: {
@@ -85,12 +86,19 @@ export const useShoppingCartStore = defineStore('shoppingCart', {
                 const response = await axios.post(`${url}/${this.shoppingCartId}/checkout`);
                 this.order = response.data;
                 console.log(response.data);
+                await this.calculateOrderPrice();
             } catch (error) {
                 console.log(error);
                 this.error = error.message || 'Failed to fetch data';
             } finally {
                 this.loading = false;
             }
+        },
+        async calculateOrderPrice() {
+            this.orderPrice = this.order.orderItems.reduce((total, item) => {
+                return total + (item.price * item.quantity);
+            }, 0);
+            console.log("Total price:", this.orderPrice);
         }
     }
 });

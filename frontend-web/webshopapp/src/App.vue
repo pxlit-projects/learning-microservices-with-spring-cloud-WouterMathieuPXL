@@ -11,7 +11,7 @@
                     overlap
                     color="red"
                 >
-                    <v-btn icon="mdi-cart" :to="'/shoppingcart'" plain/>
+                    <v-btn icon="mdi-cart" :to="'/shoppingcart'" variant="text"/>
                 </v-badge>
             </nav>
         </div>
