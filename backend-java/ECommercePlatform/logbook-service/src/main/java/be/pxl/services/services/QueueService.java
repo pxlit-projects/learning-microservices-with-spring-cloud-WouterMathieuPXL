@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 public class QueueService {
 
     private static final Logger logger = LoggerFactory.getLogger(QueueService.class);
-    private final AuditLogService auditLogService;
+    private final IAuditLogService auditLogService;
 
     @RabbitListener(queues = "auditQueue")
     public void listen(AuditLogRequest auditLogRequest) {

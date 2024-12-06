@@ -33,7 +33,7 @@ spring:
         - id: logbook-service
           uri: lb://logbook-service
           predicates:
-            - Path=/organization/**
+            - Path=/logbook/**
           filters:
             - RewritePath=/logbook/(?<path>.*), /$\{path}
         - id: images
