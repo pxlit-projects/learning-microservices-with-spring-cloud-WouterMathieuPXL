@@ -43,15 +43,16 @@
         <v-btn
             v-if="userStore.isAdmin"
             prepend-icon="mdi-pencil"
-            @click="userStore.setAdminDialog(true)">
+            @click="productCatalogStore.openAdminDialog(null)"
+        >
             Add product
         </v-btn>
 
         <v-dialog
-            v-model="userStore.adminDialog"
+            v-model="productCatalogStore.adminDialog"
             persistent
             max-width="600px">
-            <AdminDialog :product="product" @close="userStore.adminDialog = false" />
+            <AdminDialog />
         </v-dialog>
 
 

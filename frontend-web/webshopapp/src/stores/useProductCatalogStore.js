@@ -9,12 +9,22 @@ export const useProductCatalogStore = defineStore('productCatalog', {
         error: "",
         loading: false,
         products: [],
+        selectedProduct: null,
         categories: [],
         labels: [],
         labelColors: [],
+        adminDialog: false,
     }),
 
     actions: {
+        async openAdminDialog(product) {
+            this.selectedProduct = product;
+            this.adminDialog = true;
+        },
+        async closeAdminDialog() {
+            this.selectedProduct = null;
+            this.adminDialog = false;
+        },
         async getProductCatalog() {
             this.error = "";
             this.loading = true;
@@ -82,6 +92,27 @@ export const useProductCatalogStore = defineStore('productCatalog', {
                         },
                     });
                 this.products.push(response.data);
+                console.log(response.data);
+            } catch (error) {
+                console.log(error);
+                this.error = error.message || 'Failed to fetch data';
+            } finally {
+                this.loading = false;
+            }
+        },
+        async editProduct(productId, formData) {
+            this.error = "";
+            this.loading = true;
+            try {
+                const response = await axios.put(`${url}/${productId}`,
+                    formData, {
+                        headers: {
+                            'Content-Type': 'multipart/form-data',
+                        },
+                    });
+                this.products = this.products.map(product =>
+                    product.id === productId ? response.data : product
+                );
                 console.log(response.data);
             } catch (error) {
                 console.log(error);

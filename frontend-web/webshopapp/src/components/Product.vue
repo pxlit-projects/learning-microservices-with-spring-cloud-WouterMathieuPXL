@@ -24,18 +24,13 @@
             <v-btn
                 v-if="userStore.isAdmin"
                 prepend-icon="mdi-pencil"
-                @click="userStore.setAdminDialog(true)">
+                @click="productCatalogStore.openAdminDialog(product)">
                 Edit product
             </v-btn>
 
-            <v-dialog
-                v-model="userStore.adminDialog"
-                persistent
-                max-width="600px">
-                <AdminDialog :product="product" @close="userStore.adminDialog = false" />
-            </v-dialog>
 
-            <v-btn v-if="userStore.isAdmin" prepend-icon="mdi-delete" @click="productCatalogStore.deleteProduct(product.id)">
+            <v-btn v-if="userStore.isAdmin" prepend-icon="mdi-delete"
+                   @click="productCatalogStore.deleteProduct(product.id)">
                 Delete product
             </v-btn>
         </v-card-actions>
@@ -48,7 +43,6 @@ import {useShoppingCartStore} from "@/stores/useShoppingCartStore.js";
 import {useUserStore} from "@/stores/userStore.js";
 import {useProductCatalogStore} from "@/stores/useProductCatalogStore.js";
 import AdminDialog from "@/views/AdminDialog.vue";
-import {ref} from "vue";
 
 const userStore = useUserStore();
 const productCatalogStore = useProductCatalogStore();
@@ -57,6 +51,8 @@ const shoppingCartStore = useShoppingCartStore();
 const props = defineProps({
     product: Object
 });
+
+
 </script>
 
 <style scoped>
@@ -68,4 +64,4 @@ const props = defineProps({
 .no-image {
     background-color: lightgray;
 }
-</style>/
+</style>
