@@ -81,7 +81,7 @@ export const useProductCatalogStore = defineStore('productCatalog', {
                             'Content-Type': 'multipart/form-data',
                         },
                     });
-
+                this.products.push(response.data);
                 console.log(response.data);
             } catch (error) {
                 console.log(error);

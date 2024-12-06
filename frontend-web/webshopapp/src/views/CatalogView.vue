@@ -40,6 +40,21 @@
             </v-expansion-panel>
         </v-expansion-panels>
 
+        <v-btn
+            v-if="userStore.isAdmin"
+            prepend-icon="mdi-pencil"
+            @click="userStore.setAdminDialog(true)">
+            Add product
+        </v-btn>
+
+        <v-dialog
+            v-model="userStore.adminDialog"
+            persistent
+            max-width="600px">
+            <AdminDialog :product="product" @close="userStore.adminDialog = false" />
+        </v-dialog>
+
+
         <Product v-for="product in filteredProducts" :key="product.id" :product="product"/>
 
     </main>
@@ -51,7 +66,10 @@ import {useShoppingCartStore} from "@/stores/useShoppingCartStore.js";
 
 import {computed, onMounted, ref} from "vue";
 import Product from "@/components/Product.vue";
+import AdminDialog from "@/views/AdminDialog.vue";
+import {useUserStore} from "@/stores/userStore.js";
 
+const userStore = useUserStore();
 const productCatalogStore = useProductCatalogStore();
 const shoppingCartStore = useShoppingCartStore();
 

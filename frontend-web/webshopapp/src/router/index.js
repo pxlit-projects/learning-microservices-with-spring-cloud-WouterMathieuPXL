@@ -1,7 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import AdminView from '../views/AdminView.vue'
 import UserView from '../views/UserView.vue'
-import ShoppingCartView from '../views/ShoppingCartView.vue'
 import CatalogView from "@/views/CatalogView.vue";
 
 const router = createRouter({

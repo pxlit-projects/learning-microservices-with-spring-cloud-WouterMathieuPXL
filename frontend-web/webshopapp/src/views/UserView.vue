@@ -1,11 +1,11 @@
 <template>
-    <AdminView v-if="userStore.isAdmin"/>
+    <LogBookView v-if="userStore.isAdmin"/>
     <ShoppingCartView v-else/>
 </template>
 
 <script setup>
 import {useUserStore} from "@/stores/userStore.js";
-import AdminView from "@/views/AdminView.vue";
+import LogBookView from "@/views/LogBookView.vue";
 import ShoppingCartView from "@/views/ShoppingCartView.vue";
 
 const userStore = useUserStore();
