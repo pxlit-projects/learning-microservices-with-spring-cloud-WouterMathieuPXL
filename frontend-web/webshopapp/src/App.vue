@@ -3,7 +3,7 @@
 
         <div class="wrapper">
             <v-switch
-                :v-model="userStore.isAdmin"
+                v-model="userStore.isAdmin"
                 @change="userStore.toggleAdmin"
                 label="Admin"
                 hide-details
@@ -40,6 +40,7 @@ const shoppingCartStore = useShoppingCartStore();
 
 const quantity = computed(() => shoppingCartStore.totalQuantity);
 
+console.log(`Stored in localStorage: ${localStorage.getItem('isAdmin')}`);
 
 </script>
 
