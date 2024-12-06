@@ -13,7 +13,7 @@
             <nav>
 
                 <RouterLink to="/">Catalog</RouterLink>
-                <RouterLink v-if="userStore.isAdmin" to="/">Admin</RouterLink>
+                <RouterLink v-if="userStore.isAdmin" to="/user">Admin</RouterLink>
                 <v-badge v-if="!userStore.isAdmin"
                     :content="quantity"
                     overlap

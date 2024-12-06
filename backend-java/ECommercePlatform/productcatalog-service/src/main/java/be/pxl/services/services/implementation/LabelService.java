@@ -1,6 +1,8 @@
 package be.pxl.services.services.implementation;
 
+import be.pxl.services.domain.Category;
 import be.pxl.services.domain.Label;
+import be.pxl.services.domain.LabelColor;
 import be.pxl.services.domain.dto.LabelRequest;
 import be.pxl.services.domain.dto.LabelResponse;
 import be.pxl.services.exceptions.ResourceNotFoundException;
@@ -13,7 +15,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import be.pxl.services.domain.LabelColor;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -76,6 +82,14 @@ public class LabelService implements ILabelService {
 
         labelRepository.delete(label);
         log.info("Deleted label with ID: {}", labelId);
+    }
+
+    @Override
+    public List<String> getLabelColors() {
+        log.info("Fetching label colors");
+        return Arrays.stream(LabelColor.values())
+                     .map(Enum::name)
+                     .toList();
     }
 
     private Label findLabelById(Long labelId) {

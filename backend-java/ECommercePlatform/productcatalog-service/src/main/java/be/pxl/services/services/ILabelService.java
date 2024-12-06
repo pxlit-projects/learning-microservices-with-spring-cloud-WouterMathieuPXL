@@ -9,11 +9,12 @@ import java.util.List;
 public interface ILabelService {
 
     List<LabelResponse> getAllLabels();
-    //LabelResponse getLabelById(Long id);
 
     LabelResponse createLabel(LabelRequest label);
 
     LabelResponse updateLabel(Long id, LabelRequest label);
 
     void deleteLabel(Long labelId);
+
+    List<String> getLabelColors();
 }

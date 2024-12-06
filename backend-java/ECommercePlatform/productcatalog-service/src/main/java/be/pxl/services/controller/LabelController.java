@@ -28,13 +28,6 @@ public class LabelController {
         return labelService.getAllLabels();
     }
 
-//    @GetMapping("/{id}")
-//    @ResponseStatus(HttpStatus.OK)
-//    public LabelResponse getLabelById(@PathVariable Long id) {
-//        log.info("Received request to fetch label with ID: {}", id);
-//        return labelService.getLabelById(id);
-//    }
-
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public LabelResponse createLabel(@RequestBody @Valid LabelRequest labelRequest) {
@@ -54,5 +47,12 @@ public class LabelController {
     public void deleteLabel(@PathVariable Long id) {
         log.info("Received request to delete label with ID: {}", id);
         labelService.deleteLabel(id);
+    }
+
+    @GetMapping("/colors")
+    @ResponseStatus(HttpStatus.OK)
+    public List<String> getLabelColors() {
+        log.info("Received request to fetch label colors");
+        return labelService.getLabelColors();
     }
 }
