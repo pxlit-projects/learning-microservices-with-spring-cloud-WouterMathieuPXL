@@ -21,6 +21,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.testcontainers.containers.MySQLContainer;
@@ -32,13 +33,15 @@ import java.util.List;
 import java.util.stream.Stream;
 
 import static be.pxl.services.RandomGenerator.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(classes = ProductCatalogServiceApplication.class)
+@TestPropertySource(properties = {"image.storage.directory=/test/path/to/storage"})
 @Testcontainers
 @AutoConfigureMockMvc
 public class ProductIntegrationTests {
@@ -126,6 +129,7 @@ public class ProductIntegrationTests {
         String productString = objectMapper.writeValueAsString(productRequest);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/productcatalog")
+                        .header("X-User-Role", "ADMIN")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(productString))
                 .andExpect(status().isCreated());
@@ -146,6 +150,7 @@ public class ProductIntegrationTests {
         String productString = objectMapper.writeValueAsString(productRequest);
 
         mockMvc.perform(MockMvcRequestBuilders.post("/api/productcatalog")
+                        .header("X-User-Role", "ADMIN")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(productString))
                 .andExpect(status().isBadRequest());
@@ -192,6 +197,7 @@ public class ProductIntegrationTests {
         String productString = objectMapper.writeValueAsString(productRequest);
 
         mockMvc.perform(MockMvcRequestBuilders.put("/api/productcatalog/{id}", product.getId())
+                        .header("X-User-Role", "ADMIN")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(productString))
                 .andExpect(status().isAccepted());
@@ -214,6 +220,7 @@ public class ProductIntegrationTests {
         String productString = objectMapper.writeValueAsString(productRequest);
 
         mockMvc.perform(MockMvcRequestBuilders.put("/api/productcatalog/{id}", 1000)
+                        .header("X-User-Role", "ADMIN")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(productString))
                 .andExpect(status().isNotFound());
@@ -228,6 +235,7 @@ public class ProductIntegrationTests {
 
         String productString = objectMapper.writeValueAsString(productRequest);
         mockMvc.perform(MockMvcRequestBuilders.put("/api/productcatalog/{id}", product.getId())
+                        .header("X-User-Role", "ADMIN")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(productString))
                 .andExpect(status().isBadRequest());
@@ -244,7 +252,8 @@ public class ProductIntegrationTests {
     public void testDeleteProduct() throws Exception {
         productRepository.save(product);
 
-        mockMvc.perform(MockMvcRequestBuilders.delete("/api/productcatalog/delete/{id}", product.getId()))
+        mockMvc.perform(MockMvcRequestBuilders.delete("/api/productcatalog/delete/{id}", product.getId())
+                        .header("X-User-Role", "ADMIN"))
                 .andExpect(status().isNoContent());
 
         Assertions.assertEquals(0, productRepository.count());

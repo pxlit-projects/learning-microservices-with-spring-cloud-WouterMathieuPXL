@@ -48,8 +48,12 @@ public class ProductService implements IProductService {
         log.info("Creating product with name: {}", productRequest.getName());
         ProductResponse productResponse = saveOrUpdateProduct(new Product(), productRequest);
 
-        log.info("Created product with name: {}", productRequest.getName());
-        auditLogService.sendAuditLog(productResponse.getId(), "created", "admin");
+        
+        String action = String.format("Created product with name %s, description %s, price %.2f, category %s",
+                productResponse.getName(), productResponse.getDescription(),
+                productResponse.getPrice(), productResponse.getCategory());
+        log.info(action);
+        auditLogService.sendAuditLog(productResponse.getId(), action, "admin");
 
         return productResponse;
     }
@@ -59,10 +63,18 @@ public class ProductService implements IProductService {
         log.info("Updating product with ID: {}", id);
 
         Product existingProduct = findProductById(id);
+        Product originalProduct = Product.builder()
+                .id(existingProduct.getId())
+                .name(existingProduct.getName())
+                .description(existingProduct.getDescription())
+                .price(existingProduct.getPrice())
+                .category(existingProduct.getCategory())
+                .build();
         ProductResponse productResponse = saveOrUpdateProduct(existingProduct, productRequest);
 
         log.info("Updated product with ID: {}", id);
-        auditLogService.sendAuditLog(id, "updated", "admin");
+        //auditLogService.sendAuditLog(id, "updated", "admin");
+        logUpdateAction(originalProduct, productRequest);
 
         return productResponse;
     }
@@ -131,10 +143,6 @@ public class ProductService implements IProductService {
     }
 
     ProductResponse mapToProductResponse(Product product) {
-//        if (product.getLabels() == null) {
-//            product.setLabels(new HashSet<>());
-//        }
-
         return ProductResponse.builder()
                 .id(product.getId())
                 .name(product.getName())
@@ -146,5 +154,37 @@ public class ProductService implements IProductService {
                 .build();
     }
 
+    private void logUpdateAction(Product existing, ProductRequest incomingRequest) {
+        Map<String, List<Object>> changes = findChanges(existing, incomingRequest);
 
+        changes.forEach((field, values) -> {
+            String action = String.format("%s edited from %s to %s", field, values.get(0), values.get(1));
+            log.info(action);
+            auditLogService.sendAuditLog(existing.getId(), action, "admin");
+        });
+    }
+
+    private Map<String, List<Object>> findChanges(Product existing, ProductRequest incomingRequest) {
+        Map<String, List<Object>> changes = new HashMap<>();
+log.info("findChanges");
+log.info(existing.getName());
+log.info(incomingRequest.getName());
+        if (!Objects.equals(existing.getName(), incomingRequest.getName())) {
+            log.info("name not equal");
+            changes.put("name", Arrays.asList(existing.getName(), incomingRequest.getName()));
+        }
+        if (!Objects.equals(existing.getDescription(), incomingRequest.getDescription())) {
+            changes.put("description", Arrays.asList(existing.getDescription(), incomingRequest.getDescription()));
+        }
+        if (existing.getPrice() != incomingRequest.getPrice()) {
+            changes.put("price", Arrays.asList(existing.getPrice(), incomingRequest.getPrice()));
+        }
+        if (!Objects.equals(existing.getCategory(), incomingRequest.getCategory())) {
+            changes.put("category", Arrays.asList(existing.getCategory(), incomingRequest.getCategory()));
+        }
+
+        // Labels and image not done
+
+        return changes;
+    }
 }

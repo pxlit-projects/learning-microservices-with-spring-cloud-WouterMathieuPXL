@@ -15,6 +15,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -28,6 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(classes = ProductCatalogServiceApplication.class)
+@TestPropertySource(properties = {"image.storage.directory=/test/path/to/storage"})
 @Testcontainers
 @AutoConfigureMockMvc
 public class LabelIntegrationTests {
@@ -55,12 +57,18 @@ public class LabelIntegrationTests {
         registry.add("eureka.client.enabled", () -> "false");
     }
 
+    static Stream<LabelRequest> invalidLabelRequests() {
+        return Stream.of(
+                LabelRequest.builder().color(randomFromEnum(LabelColor.class)).build(),
+                LabelRequest.builder().name("").color(randomFromEnum(LabelColor.class)).build(),
+                LabelRequest.builder().name(randomString()).build()
+        );
+    }
+
     @BeforeEach
     public void init() {
         labelRepository.deleteAll();
     }
-    
-    
 
     @Test
     public void testGetAllLabels() throws Exception {
@@ -89,6 +97,7 @@ public class LabelIntegrationTests {
                 .build();
 
         mockMvc.perform(post("/api/productcatalog/labels")
+                        .header("X-User-Role", "ADMIN")
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(labelRequest)))
                 .andExpect(status().isCreated())
@@ -99,17 +108,29 @@ public class LabelIntegrationTests {
     @MethodSource("invalidLabelRequests")
     public void testCreateLabelWithInvalidRequests(LabelRequest invalidLabelRequest) throws Exception {
         mockMvc.perform(post("/api/productcatalog/labels")
+                        .header("X-User-Role", "ADMIN")
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(invalidLabelRequest)))
                 .andExpect(status().isBadRequest());
     }
 
-    static Stream<LabelRequest> invalidLabelRequests() {
-        return Stream.of(
-                LabelRequest.builder().color(randomFromEnum(LabelColor.class)).build(),
-                LabelRequest.builder().name("").color(randomFromEnum(LabelColor.class)).build(),
-                LabelRequest.builder().name(randomString()).build()
-        );
+    @Test
+    public void testCreateLabelWithoutAdminRightsReturnsForbidden() throws Exception {
+        LabelRequest labelRequest = LabelRequest.builder()
+                .name(randomString())
+                .color(randomFromEnum(LabelColor.class))
+                .build();
+
+        mockMvc.perform(post("/api/productcatalog/labels")
+                        .header("X-User-Role", "USER")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(labelRequest)))
+                .andExpect(status().isForbidden());
+
+        mockMvc.perform(post("/api/productcatalog/labels")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(labelRequest)))
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -126,13 +147,32 @@ public class LabelIntegrationTests {
                 .build();
 
         mockMvc.perform(put("/api/productcatalog/labels/{id}", label.getId())
+                        .header("X-User-Role", "ADMIN")
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(labelRequest)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value(labelRequest.getName()));
     }
 
+    @Test
+    public void testUpdateLabelWithoutAdminRightsReturnsForbidden() throws Exception {
+        LabelRequest labelRequest = LabelRequest.builder()
+                .name(randomString())
+                .color(randomFromEnum(LabelColor.class))
+                .build();
 
+        mockMvc.perform(put("/api/productcatalog/labels/{id}", randomInt(999))
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(labelRequest)))
+                .andExpect(status().isForbidden());
+
+
+        mockMvc.perform(put("/api/productcatalog/labels/{id}", randomInt(999))
+                        .header("X-User-Role", "USER")
+                        .contentType("application/json")
+                        .content(objectMapper.writeValueAsString(labelRequest)))
+                .andExpect(status().isForbidden());
+    }
 
     @Test
     public void testDeleteLabel() throws Exception {
@@ -142,15 +182,34 @@ public class LabelIntegrationTests {
                 .build();
         labelRepository.save(label);
 
-        mockMvc.perform(delete("/api/productcatalog/labels/{id}", label.getId()))
+        mockMvc.perform(delete("/api/productcatalog/labels/{id}", label.getId())
+                        .header("X-User-Role", "ADMIN"))
                 .andExpect(status().isNoContent());
 
         Assertions.assertEquals(0, labelRepository.count());
     }
 
     @Test
+    public void testDeleteLabelWithoutAdminRightsReturnsForbidden() throws Exception {
+        mockMvc.perform(delete("/api/productcatalog/labels/{id}", randomInt(999))
+                        .header("X-User-Role", "USER"))
+                .andExpect(status().isForbidden());
+
+
+        mockMvc.perform(delete("/api/productcatalog/labels/{id}", randomInt(999)))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
     public void testDeleteNonExistentLabel() throws Exception {
-        mockMvc.perform(delete("/api/productcatalog/labels/{id}", 1))
+        mockMvc.perform(delete("/api/productcatalog/labels/{id}", 1)
+                        .header("X-User-Role", "ADMIN"))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void testGetAllLabelColors() throws Exception {
+        mockMvc.perform(get("/api/productcatalog/labels/colors"))
+                .andExpect(status().isOk());
     }
 }
