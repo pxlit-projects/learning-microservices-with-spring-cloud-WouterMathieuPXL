@@ -2,6 +2,7 @@ package be.pxl.services.controller;
 
 import be.pxl.services.domain.dto.ProductRequest;
 import be.pxl.services.domain.dto.ProductResponse;
+import be.pxl.services.exceptions.ForbiddenException;
 import be.pxl.services.services.IProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +39,14 @@ public class ProductController {
 
     @PostMapping(consumes = {"multipart/form-data"})
     @ResponseStatus(HttpStatus.CREATED)
-    public ProductResponse createProduct(@ModelAttribute @Valid ProductRequest productRequest) {
+    public ProductResponse createProduct(
+            @RequestHeader(value = "X-User-Role", required = false) String role,
+            @ModelAttribute @Valid ProductRequest productRequest) {
+        if (role == null || !role.equals("ADMIN")) {
+            log.warn("Unauthorized attempt to create a product by user with role: {}", role);
+            throw new ForbiddenException("You do not have access to this resource.");
+        }
+
         log.info("Received request to create a new product");
         if (productRequest.getImage() != null) {
             log.info("Image received: {}", productRequest.getImage().getOriginalFilename());
@@ -48,14 +56,29 @@ public class ProductController {
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    public ProductResponse updateProduct(@PathVariable Long id, @ModelAttribute @Valid ProductRequest productRequest) {
+    public ProductResponse updateProduct(
+            @RequestHeader(value = "X-User-Role", required = false) String role,
+            @PathVariable Long id, 
+            @ModelAttribute @Valid ProductRequest productRequest) {
+        if (role == null || !role.equals("ADMIN")) {
+            log.warn("Unauthorized attempt to edit the product with ID {} by user with role: {}", id, role);
+            throw new ForbiddenException("You do not have access to this resource.");
+        }
+
         log.info("Received request to update product with ID: {}", id);
         return productService.updateProduct(id, productRequest);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteProduct(@PathVariable Long id) {
+    public void deleteProduct(
+            @RequestHeader(value = "X-User-Role", required = false) String role,
+            @PathVariable Long id) {
+        if (role == null || !role.equals("ADMIN")) {
+            log.warn("Unauthorized attempt to delete the product with ID {} by user with role: {}", id, role);
+            throw new ForbiddenException("You do not have access to this resource.");
+        }
+
         log.info("Received request to delete product with ID: {}", id);
         productService.deleteProduct(id);
     }

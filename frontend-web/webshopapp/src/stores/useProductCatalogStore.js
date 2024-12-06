@@ -1,5 +1,6 @@
 import {defineStore} from 'pinia'
 import axios from "axios";
+import {useUserStore} from "@/stores/userStore.js";
 
 const url = 'http://localhost:8084/productcatalog/api/productcatalog';
 
@@ -85,10 +86,12 @@ export const useProductCatalogStore = defineStore('productCatalog', {
             this.error = "";
             this.loading = true;
             try {
+                const userStore = useUserStore();
                 const response = await axios.post(url,
                     formData, {
                         headers: {
                             'Content-Type': 'multipart/form-data',
+                            'X-User-Role': userStore.role
                         },
                     });
                 this.products.push(response.data);
@@ -104,10 +107,12 @@ export const useProductCatalogStore = defineStore('productCatalog', {
             this.error = "";
             this.loading = true;
             try {
+                const userStore = useUserStore();
                 const response = await axios.put(`${url}/${productId}`,
                     formData, {
                         headers: {
                             'Content-Type': 'multipart/form-data',
+                            'X-User-Role': userStore.role
                         },
                     });
                 this.products = this.products.map(product =>
@@ -125,7 +130,12 @@ export const useProductCatalogStore = defineStore('productCatalog', {
             this.error = "";
             this.loading = true;
             try {
-                const response = await axios.delete(`${url}/${id}`);
+                const userStore = useUserStore();
+                const response = await axios.delete(`${url}/${id}`, {
+                    headers: {
+                        'X-User-Role': userStore.role
+                    },
+                });
                 console.log(response.data);
                 this.products = this.products.filter(product => product.id !== id);
             } catch (error) {
@@ -139,7 +149,12 @@ export const useProductCatalogStore = defineStore('productCatalog', {
             this.error = "";
             this.loading = true;
             try {
-                const response = await axios.post(`${url}/labels`, label);
+                const userStore = useUserStore();
+                const response = await axios.post(`${url}/labels`, label, {
+                    headers: {
+                        'X-User-Role': userStore.role
+                    },
+                });
                 this.labels.push(response.data);
                 console.log(response.data);
             } catch (error) {
@@ -153,7 +168,12 @@ export const useProductCatalogStore = defineStore('productCatalog', {
             this.error = "";
             this.loading = true;
             try {
-                const response = await axios.delete(`${url}/labels/${id}`);
+                const userStore = useUserStore();
+                const response = await axios.delete(`${url}/labels/${id}`, {
+                    headers: {
+                        'X-User-Role': userStore.role
+                    },
+                });
                 this.labels = this.labels.filter(labels => labels.id !== id);
                 console.log(response.data);
             } catch (error) {

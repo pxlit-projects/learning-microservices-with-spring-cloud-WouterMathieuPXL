@@ -2,6 +2,7 @@ package be.pxl.services.controller;
 
 import be.pxl.services.domain.dto.CustomerOrderResponse;
 import be.pxl.services.domain.dto.ShoppingCartResponse;
+import be.pxl.services.exceptions.ForbiddenException;
 import be.pxl.services.services.IOrderService;
 import be.pxl.services.services.IShoppingCartService;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +23,14 @@ public class ShoppingCartController {
 
     @GetMapping("/{shoppingCartId}")
     @ResponseStatus(HttpStatus.OK)
-    public ShoppingCartResponse getShoppingCartById(@PathVariable Long shoppingCartId) {
+    public ShoppingCartResponse getShoppingCartById(
+            @RequestHeader(value = "X-User-Role", required = false) String role,
+            @PathVariable Long shoppingCartId) {
+        if (role == null || !role.equals("USER")) {
+            log.warn("Unauthorized attempt to get access to the shopping card with ID {}", shoppingCartId);
+            throw new ForbiddenException("You do not have access to this resource.");
+        }
+
         log.info("Received request to fetch shopping cart with ID {}", shoppingCartId);
         return shoppingCartService.getShoppingCartById(shoppingCartId);
     }
@@ -31,9 +39,15 @@ public class ShoppingCartController {
     @ResponseStatus(HttpStatus.OK)
     // url: /api/shoppingCart/{shoppingCartId}/products/{productId}?quantity={quantity}
     public ShoppingCartResponse editProductInShoppingCart(
+            @RequestHeader(value = "X-User-Role", required = false) String role,
             @PathVariable Long shoppingCartId,
             @PathVariable Long productId,
             @RequestParam int quantity) {
+        if (role == null || !role.equals("USER")) {
+            log.warn("Unauthorized attempt to edit the shopping card with ID {}", shoppingCartId);
+            throw new ForbiddenException("You do not have access to this resource.");
+        }
+
         log.info("Received request to edit shopping cart with ID {}: {}x product with ID {}",
                 shoppingCartId, quantity, productId);
         return shoppingCartService.editProductInShoppingCart(shoppingCartId, productId, quantity);
@@ -41,7 +55,14 @@ public class ShoppingCartController {
 
     @PostMapping("/{shoppingCartId}/checkout")
     @ResponseStatus(HttpStatus.OK)
-    public CustomerOrderResponse checkoutShoppingCart(@PathVariable Long shoppingCartId) {
+    public CustomerOrderResponse checkoutShoppingCart(
+            @RequestHeader(value = "X-User-Role", required = false) String role,
+            @PathVariable Long shoppingCartId) {
+        if (role == null || !role.equals("USER")) {
+            log.warn("Unauthorized attempt to checkout to the shopping card with ID {}", shoppingCartId);
+            throw new ForbiddenException("You do not have access to this resource.");
+        }
+
         log.info("Received request to checkout shopping cart with ID {}", shoppingCartId);
         return orderService.checkout(shoppingCartId);
     }

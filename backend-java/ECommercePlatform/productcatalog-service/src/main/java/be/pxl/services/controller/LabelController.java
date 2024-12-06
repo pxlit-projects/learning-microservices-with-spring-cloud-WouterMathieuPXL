@@ -2,6 +2,7 @@ package be.pxl.services.controller;
 
 import be.pxl.services.domain.dto.LabelRequest;
 import be.pxl.services.domain.dto.LabelResponse;
+import be.pxl.services.exceptions.ForbiddenException;
 import be.pxl.services.services.ILabelService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -30,21 +31,43 @@ public class LabelController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public LabelResponse createLabel(@RequestBody @Valid LabelRequest labelRequest) {
+    public LabelResponse createLabel(
+            @RequestHeader(value = "X-User-Role", required = false) String role,
+            @RequestBody @Valid LabelRequest labelRequest) {
+        if (role == null || !role.equals("ADMIN")) {
+            log.warn("Unauthorized attempt to create a label by user with role: {}", role);
+            throw new ForbiddenException("You do not have access to this resource.");
+        }
+
         log.info("Received request to create a new label");
         return labelService.createLabel(labelRequest);
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public LabelResponse updateLabel(@PathVariable Long id, @RequestBody @Valid LabelRequest labelRequest) {
+    public LabelResponse updateLabel(
+            @RequestHeader(value = "X-User-Role", required = false) String role,
+            @PathVariable Long id,
+            @RequestBody @Valid LabelRequest labelRequest) {
+        if (role == null || !role.equals("ADMIN")) {
+            log.warn("Unauthorized attempt to edit the label with ID {} by user with role: {}", id, role);
+            throw new ForbiddenException("You do not have access to this resource.");
+        }
+
         log.info("Received request to update label with ID: {}", id);
         return labelService.updateLabel(id, labelRequest);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteLabel(@PathVariable Long id) {
+    public void deleteLabel(
+            @RequestHeader(value = "X-User-Role", required = false) String role,
+            @PathVariable Long id) {
+        if (role == null || !role.equals("ADMIN")) {
+            log.warn("Unauthorized attempt to delete the label with ID {} by user with role: {}", id, role);
+            throw new ForbiddenException("You do not have access to this resource.");
+        }
+
         log.info("Received request to delete label with ID: {}", id);
         labelService.deleteLabel(id);
     }
