@@ -5,9 +5,9 @@
         <v-card-item>
 
             <form @submit.prevent="submitProduct">
-                <v-text-field type="text" v-model="product.name" placeholder="Product Name" required/>
-                <v-text-field type="text" v-model="product.description" placeholder="Description" required/>
-                <v-text-field type="number" v-model="product.price" placeholder="Price" required/>
+                <v-text-field type="text" v-model="product.name" placeholder="Product Name"/>
+                <v-text-field type="text" v-model="product.description" placeholder="Description"/>
+                <v-text-field type="number" v-model="product.price" placeholder="Price" @input="validatePrice"/>
                 <v-select
                     :items="productCatalogStore.categories"
                     item-value="key"
@@ -63,12 +63,12 @@
                             {{ newLabel.name.toUpperCase() }}
                         </v-chip>
                     </v-chip-group>
-                    <v-btn @click="createLabel">Create Label</v-btn>
+                    <v-btn @click="createLabel">Create label</v-btn>
                 </div>
 
 
                 <v-file-input v-model="product.image" label="File input" show-size/>
-                <v-btn @click="submitProduct()">Create Product</v-btn>
+                <v-btn @click="submitProduct()" :disabled="!isFormValid">{{ isEditMode ? "Edit" : "Add" }} product</v-btn>
                 <v-btn @click="productCatalogStore.closeAdminDialog()">Cancel</v-btn>
             </form>
         </v-card-item>
@@ -118,7 +118,9 @@ onMounted(() => {
         });
     }
 });
-const isEditMode = computed(() => !!productCatalogStore.selectedProduct);
+
+const isEditMode = ref(!!productCatalogStore.selectedProduct);
+
 
 const newLabel = reactive({
     name: 'NEW',
@@ -135,15 +137,24 @@ const submitProduct = async () => {
         formData.append('labelIds', labelId);
     });
     formData.append('labelIds', product.labelIds);
-    formData.append('image', product.image);
+    if (product.image) {
+        formData.append('image', product.image);
+    }
 
-    if (isEditMode) {
+    console.log(!!productCatalogStore.selectedProduct)
+
+    if (isEditMode.value) {
         await productCatalogStore.editProduct(productCatalogStore.selectedProduct.id, formData);
     } else {
         await productCatalogStore.createProduct(formData);
     }
 }
-
+const isFormValid = computed(() => {
+    return product.name && product.description && product.price && product.category;
+});
+const validatePrice = (event) => {
+    product.price = event.target.value.replace(/[^0-9.]/g, ''); // Alleen cijfers en punt (.) toestaan
+};
 const createLabel = async () => {
     console.log(newLabel);
     await productCatalogStore.createLabel(newLabel);
