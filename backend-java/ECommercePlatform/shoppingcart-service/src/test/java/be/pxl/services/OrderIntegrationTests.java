@@ -95,7 +95,8 @@ public class OrderIntegrationTests {
 
     @Test
     void shouldCheckoutShoppingCart() throws Exception {
-        mockMvc.perform(post("/api/shoppingcart/{id}/checkout", shoppingCart.getId()))
+        mockMvc.perform(post("/api/shoppingcart/{id}/checkout", shoppingCart.getId())
+                        .header("X-User-Role", "USER"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(notNullValue())))
                 .andExpect(jsonPath("$.orderItems.length()", is(shoppingCart.getShoppingCartItems().size())));
@@ -107,5 +108,15 @@ public class OrderIntegrationTests {
             assertNotNull(item.getId(), "OrderItem ID should have been generated");
             assertEquals(createdOrder, item.getOrder(), "Each OrderItem should have the correct Order associated");
         }
+    }
+
+    @Test
+    void checkoutShoppingCartWhenNotAuthenticatedShouldThrowForbidden() throws Exception {
+        mockMvc.perform(post("/api/shoppingcart/{id}/checkout", shoppingCart.getId()))
+                .andExpect(status().isForbidden());
+
+        mockMvc.perform(post("/api/shoppingcart/{id}/checkout", shoppingCart.getId())
+                        .header("X-User-Role", "ADMIN"))
+                .andExpect(status().isForbidden());
     }
 }

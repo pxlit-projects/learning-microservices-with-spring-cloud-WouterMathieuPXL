@@ -28,8 +28,7 @@ import static be.pxl.services.RandomGenerator.randomString;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -93,14 +92,25 @@ public class ShoppingCartIntegrationTests {
 
     @Test
     public void testGetShoppingCart() throws Exception {
-        mockMvc.perform(get("/api/shoppingcart/{id}", shoppingCart.getId()))
+        mockMvc.perform(get("/api/shoppingcart/{id}", shoppingCart.getId())
+                        .header("X-User-Role", "USER"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.shoppingCartItems.length()", is(shoppingCart.getShoppingCartItems().size())));
+    }
+    @Test
+    public void testGetShoppingCartWhenNotAuthenticatedShouldThrowForbidden() throws Exception {
+        mockMvc.perform(get("/api/shoppingcart/{id}", shoppingCart.getId())
+                        .header("X-User-Role", "ADMIN"))
+                .andExpect(status().isForbidden());
+
+        mockMvc.perform(get("/api/shoppingcart/{id}", shoppingCart.getId()))
+                .andExpect(status().isForbidden());
     }
 
     @Test
     public void testGetNonExistingShoppingCart() throws Exception {
-        mockMvc.perform(get("/api/shoppingcart/{id}", randomInt(9999)))
+        mockMvc.perform(get("/api/shoppingcart/{id}", randomInt(9999))
+                        .header("X-User-Role", "USER"))
                 .andExpect(status().isNotFound());
     }
 
@@ -108,7 +118,8 @@ public class ShoppingCartIntegrationTests {
     @ValueSource(ints = {0, 3})
     public void testEditProductInShoppingCartWhenProductIsAlreadyInCart(int quantity) throws Exception {
         mockMvc.perform(put("/api/shoppingcart/{shoppingCartId}/products/{productId}?quantity={quantity}",
-                        shoppingCart.getId(), 0, quantity))
+                        shoppingCart.getId(), 0, quantity)
+                        .header("X-User-Role", "USER"))
                 .andExpect(status().isOk());
     }
 
@@ -118,7 +129,8 @@ public class ShoppingCartIntegrationTests {
         shoppingCart.getShoppingCartItems().clear();
 
         mockMvc.perform(put("/api/shoppingcart/{shoppingCartId}/products/{productId}?quantity={quantity}",
-                        shoppingCart.getId(), randomInt(9999), quantity))
+                        shoppingCart.getId(), randomInt(9999), quantity)
+                        .header("X-User-Role", "USER"))
                 .andExpect(status().isOk());
     }
 
@@ -127,7 +139,8 @@ public class ShoppingCartIntegrationTests {
     public void testEditProductInShoppingCartWhenProductDoesNotExist(int quantity) throws Exception {
         given(productCatalogClient.getProductById(anyLong())).willThrow(new RuntimeException("Product not found"));
         mockMvc.perform(put("/api/shoppingcart/{shoppingCartId}/products/{productId}?quantity={quantity}",
-                        shoppingCart.getId(), randomInt(9999), quantity))
+                        shoppingCart.getId(), randomInt(9999), quantity)
+                        .header("X-User-Role", "USER"))
                 .andExpect(status().isNotFound());
     }
 
@@ -136,15 +149,41 @@ public class ShoppingCartIntegrationTests {
     public void testEditProductInShoppingCartWhenProductDoesNotExist2(long productId) throws Exception {
         given(productCatalogClient.getProductById(2L)).willReturn(null);
         mockMvc.perform(put("/api/shoppingcart/{shoppingCartId}/products/{productId}?quantity={quantity}",
-                        shoppingCart.getId(), productId, randomInt(10)))
+                        shoppingCart.getId(), productId, randomInt(10))
+                        .header("X-User-Role", "USER"))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    public void testEditProductInShoppingCartWhenNotAuthenticatedShouldThrowForbidden() throws Exception {
+        mockMvc.perform(put("/api/shoppingcart/{shoppingCartId}/products/{productId}?quantity={quantity}",
+                        shoppingCart.getId(), randomInt(999), randomInt(10))
+                        .header("X-User-Role", "ADMIN"))
+                .andExpect(status().isForbidden());
+
+        mockMvc.perform(put("/api/shoppingcart/{shoppingCartId}/products/{productId}?quantity={quantity}",
+                        shoppingCart.getId(), randomInt(999), randomInt(10)))
+                .andExpect(status().isForbidden());
     }
 
     @ParameterizedTest
     @ValueSource(ints = {1, 30})
     public void testRemoveProductInShoppingCart(long productId) throws Exception {
         mockMvc.perform(put("/api/shoppingcart/{shoppingCartId}/products/{productId}?quantity={quantity}",
-                        shoppingCart.getId(), productId, 0))
+                        shoppingCart.getId(), productId, 0)
+                        .header("X-User-Role", "USER"))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    public void testRemoveProductInShoppingCartWhenNotAuthenticatedShouldThrowForbidden() throws Exception {
+        mockMvc.perform(put("/api/shoppingcart/{shoppingCartId}/products/{productId}?quantity={quantity}",
+                        shoppingCart.getId(), randomInt(999), randomInt(10))
+                        .header("X-User-Role", "ADMIN"))
+                .andExpect(status().isForbidden());
+
+        mockMvc.perform(put("/api/shoppingcart/{shoppingCartId}/products/{productId}?quantity={quantity}",
+                shoppingCart.getId(), randomInt(999), randomInt(10)))
+                .andExpect(status().isForbidden());
     }
 }
