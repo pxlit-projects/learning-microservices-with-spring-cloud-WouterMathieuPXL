@@ -68,7 +68,9 @@ public class ProductService implements IProductService {
     }
 
     private ProductResponse saveOrUpdateProduct(Product product, ProductRequest productRequest) {
-        String imageUrl = imageService.storeImage(productRequest.getImage());
+        String imageUrl = productRequest.getImage() != null
+                ? imageService.storeImage(productRequest.getImage())
+                : product.getImageUrl();
 
         Product updatedProduct = Product.builder()
                 .id(product.getId())
@@ -143,6 +145,6 @@ public class ProductService implements IProductService {
                 .imageUrl(product.getImageUrl())
                 .build();
     }
-    
-    
+
+
 }

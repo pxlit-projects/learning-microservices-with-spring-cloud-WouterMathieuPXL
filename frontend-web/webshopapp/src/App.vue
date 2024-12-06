@@ -1,31 +1,36 @@
 <template>
-    <header>
 
-        <div class="wrapper">
-            <v-switch
-                v-model="userStore.isAdmin"
-                @change="userStore.toggleAdmin"
-                label="Admin"
-                hide-details
-                inset
-                color="primary"
-            />
-            <nav>
+    <main>
+        <v-container class="nav">
+            <v-row>
+                <v-col cols="3" class="ma-0 pa-0">
+                    <v-switch
+                        v-model="userStore.isAdmin"
+                        @change="userStore.toggleAdmin"
+                        label="Admin"
+                        hide-details
+                        inset
+                    />
 
-                <RouterLink to="/">Catalog</RouterLink>
-                <RouterLink v-if="userStore.isAdmin" to="/user">Logbook</RouterLink>
-                <v-badge v-if="!userStore.isAdmin"
-                    :content="quantity"
-                    overlap
-                    color="red"
-                >
-                    <v-btn icon="mdi-cart" :to="'/user'" variant="text"/>
-                </v-badge>
-            </nav>
-        </div>
-    </header>
-    <br/>
-    <RouterView/>
+                </v-col>
+                <v-col cols="9" class="d-flex justify-end">
+                    <RouterLink to="/" class="mt-2 mr-8">Catalog</RouterLink>
+                    <RouterLink v-if="userStore.isAdmin" to="/user" class="mt-2">Logbook</RouterLink>
+                    <v-badge v-if="!userStore.isAdmin"
+                             :content="quantity"
+                             overlap
+                             color="red"
+                    >
+                        <v-btn icon="mdi-cart" :to="'/user'" variant="text"/>
+                    </v-badge>
+                </v-col>
+
+            </v-row>
+
+
+        </v-container>
+        <RouterView/>
+    </main>
 </template>
 
 <script setup>
@@ -54,7 +59,16 @@ onMounted(async () => {
 
 </script>
 
-<style scoped>
+<style>
+body {
+    background-color: lightgray;
+}
 
-
+main {
+    max-width: 700px;
+    margin: 0 auto;
+}
+.nav {
+    height: 70px;
+}
 </style>

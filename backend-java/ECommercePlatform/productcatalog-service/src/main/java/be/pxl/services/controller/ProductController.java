@@ -40,7 +40,9 @@ public class ProductController {
     @ResponseStatus(HttpStatus.CREATED)
     public ProductResponse createProduct(@ModelAttribute @Valid ProductRequest productRequest) {
         log.info("Received request to create a new product");
-        log.info("Image received: {}", productRequest.getImage().getOriginalFilename());
+        if (productRequest.getImage() != null) {
+            log.info("Image received: {}", productRequest.getImage().getOriginalFilename());
+        }
         return productService.createProduct(productRequest);
     }
 
