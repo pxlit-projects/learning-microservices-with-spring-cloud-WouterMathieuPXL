@@ -48,7 +48,6 @@ public class ProductService implements IProductService {
         log.info("Creating product with name: {}", productRequest.getName());
         ProductResponse productResponse = saveOrUpdateProduct(new Product(), productRequest);
 
-        
         String action = String.format("Created product with name %s, description %s, price %.2f, category %s",
                 productResponse.getName(), productResponse.getDescription(),
                 productResponse.getPrice(), productResponse.getCategory());
@@ -166,9 +165,7 @@ public class ProductService implements IProductService {
 
     private Map<String, List<Object>> findChanges(Product existing, ProductRequest incomingRequest) {
         Map<String, List<Object>> changes = new HashMap<>();
-log.info("findChanges");
-log.info(existing.getName());
-log.info(incomingRequest.getName());
+
         if (!Objects.equals(existing.getName(), incomingRequest.getName())) {
             log.info("name not equal");
             changes.put("name", Arrays.asList(existing.getName(), incomingRequest.getName()));
