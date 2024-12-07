@@ -1,11 +1,22 @@
 <template>
+    <v-container class="ma-0 pa-0 mt-5">
     <ShoppingCartItem
         v-for="shoppingCartItem in shoppingCartStore.shoppingCart.shoppingCartItems"
         :key="shoppingCartItem.id"
         :shoppingCartItem="shoppingCartItem"
     />
-    <div> Totale prijs: {{ totalPrice }}</div>
-    <v-btn @click="checkout()" :disabled="shoppingCartStore.totalQuantity <= 0">Checkout</v-btn>
+    </v-container>
+    <v-row class="ma-0 my-4 pa-0">
+        <v-col cols="10" class="d-flex justify-end ma-0 pa-0">
+            Totale prijs:
+        </v-col>
+        <v-col cols="2" class="d-flex justify-end ma-0 pa-0">
+            €    {{ totalPrice }}
+        </v-col>
+    </v-row>
+    <v-row class="ma-0 my-4 pa-0 d-flex justify-end ">
+    <v-btn class="rounded-pill" color="blue" @click="checkout()" :disabled="shoppingCartStore.totalQuantity <= 0">Checkout</v-btn>
+    </v-row>
 
     <v-dialog v-model="isDialogVisible" persistent>
         <v-card>

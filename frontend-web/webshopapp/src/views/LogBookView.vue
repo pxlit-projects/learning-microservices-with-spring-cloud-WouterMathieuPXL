@@ -1,19 +1,23 @@
 <template>
     <v-row class="ma-0 pa-0">
         <v-col cols="1" class=" text-caption mb-3 pa-0">
-nr.
+        <v-label text="Log"   />
+
         </v-col>
         <v-col cols="3" class=" text-caption ma-0 pa-0">
-            Date time
+         <v-label text="Date time"   />
         </v-col>
         <v-col cols="1" class=" text-caption ma-0 pa-0">
-            By
+            <v-label text="By"   />
+
         </v-col>
         <v-col cols="1" class="text-caption ma-0 pa-0">
-            Product
+                     <v-label text="ID"   />
+
         </v-col>
         <v-col cols="6" class="text-caption ma-0 pa-0">
-            action
+                     <v-label text="Action"   />
+
         </v-col>
     </v-row>
     <v-row v-for="auditLog in logBookStore.auditLogs" :key="auditLog.id" class="ma-0 pa-0">
