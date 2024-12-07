@@ -61,7 +61,7 @@ onMounted(async () => {
 
 <style>
 body {
-    background-color: lightgray;
+    //background-color: lightgray;
 }
 
 main {

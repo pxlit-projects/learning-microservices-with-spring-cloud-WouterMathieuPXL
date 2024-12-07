@@ -5,71 +5,102 @@
         <v-card-item>
 
             <form @submit.prevent="submitProduct">
-                <v-text-field type="text" v-model="product.name" placeholder="Product Name"/>
+                <v-text-field type="text" v-model="product.name" placeholder="Name"/>
                 <v-text-field type="text" v-model="product.description" placeholder="Description"/>
                 <v-text-field type="number" v-model="product.price" placeholder="Price" @input="validatePrice"/>
-                <v-select
-                    :items="productCatalogStore.categories"
-                    item-value="key"
-                    item-title="value"
-                    v-model="product.category"
-                    hide-details
+                <v-select placeholder="Category"
+                          :items="productCatalogStore.categories"
+                          item-value="key"
+                          item-title="value"
+                          v-model="product.category"
+                          hide-details
                 ></v-select>
-                <v-btn @click="deleteLabelMode = !deleteLabelMode">
-                    {{ deleteLabelMode ? 'Select labels' : 'Manage labels' }}
-                </v-btn>
-                <v-chip-group
-                    v-if="!deleteLabelMode"
-                    column
-                    multiple
-                    v-model="selectedLabels"
-                >
-                    <v-chip filter v-for="label in productCatalogStore.labels"
-                            :key="label.id"
-                            :value="label.id"
-                            size="x-small"
-                            :style="{ backgroundColor: label.color.toLowerCase() }">
-                        {{ label.name.toUpperCase() }}
-                    </v-chip>
-                </v-chip-group>
+                <!--                <v-btn @click="deleteLabelMode = !deleteLabelMode">-->
+                <!--                    {{ deleteLabelMode ? 'Select labels' : 'Manage labels' }}-->
+                <!--                </v-btn>-->
 
-                <v-chip-group
-                    v-if="deleteLabelMode"
-                    column
-                >
-                    <v-chip filter v-for="label in productCatalogStore.labels"
-                            :key="label.id"
-                            :value="label.id"
-                            size="x-small"
-                            :style="{ backgroundColor: label.color.toLowerCase() }"
-                            closable
-                            @click:close="() => productCatalogStore.deleteLabel(label.id)">
-                        {{ label.name.toUpperCase() }}
-                    </v-chip>
-                </v-chip-group>
-
-                <div v-if="deleteLabelMode">
-                    NEW LABEL
-                    <v-text-field type="text" v-model="newLabel.name" placeholder="Label Name" required/>
-                    <v-chip-group
-                        column
-                        v-model="newLabel.color"
-                    >
-                        <v-chip filter v-for="color in productCatalogStore.labelColors"
-                                :key="color"
-                                :value="color"
-                                size="x-small"
-                                :style="{ backgroundColor: color.toLowerCase() }">
-                            {{ newLabel.name.toUpperCase() }}
-                        </v-chip>
-                    </v-chip-group>
-                    <v-btn @click="createLabel">Create label</v-btn>
-                </div>
+                <v-expansion-panels variant="accordion" v-model="openPanels" class="my-6">
+                    <v-expansion-panel>
+                        <v-expansion-panel-title>
+                            Select labels
+                        </v-expansion-panel-title>
+                        <v-expansion-panel-text>
 
 
-                <v-file-input v-model="product.image" label="File input" show-size/>
-                <v-btn @click="submitProduct()" :disabled="!isFormValid">{{ isEditMode ? "Edit" : "Add" }} product</v-btn>
-                <v-btn @click="productCatalogStore.closeAdminDialog()">Cancel</v-btn>
+                            <v-chip-group
+                                column
+                                multiple
+                                v-model="selectedLabels"
+                            >
+                                <v-chip filter v-for="label in productCatalogStore.labels"
+                                        :key="label.id"
+                                        :value="label.id"
+                                        size="x-small"
+                                        :style="{ backgroundColor: label.color.toLowerCase() }">
+                                    {{ label.name.toUpperCase() }}
+                                </v-chip>
+                            </v-chip-group>
+                        </v-expansion-panel-text>
+
+                    </v-expansion-panel>
+
+                    <v-expansion-panel>
+                        <v-expansion-panel-title>
+                            Manage labels
+                        </v-expansion-panel-title>
+                        <v-expansion-panel-text>
+
+
+                            <v-chip-group
+                                column
+                            >
+                                <v-chip filter v-for="label in productCatalogStore.labels"
+                                        :key="label.id"
+                                        :value="label.id"
+                                        size="x-small"
+                                        :style="{ backgroundColor: label.color.toLowerCase() }"
+                                        closable
+                                        @click:close="() => productCatalogStore.deleteLabel(label.id)">
+                                    {{ label.name.toUpperCase() }}
+                                </v-chip>
+                            </v-chip-group>
+
+                            <v-row class="mx-0 mb-2 mt-8 pa-0 d-flex align-center">
+                                <v-text-field class="ma-0 pa-0" cols="7" type="text" v-model="newLabel.name"
+                                              placeholder="Label Name"
+                                              dense hide-details outlined/>
+                                <v-col cols="1"/>
+                                <v-btn prepend-icon="mdi-plus" variant="flat"
+                                       cols="4" @click="createLabel">Create label
+                                </v-btn>
+                            </v-row>
+                            <v-row class="ma-0 pa-0">
+                                <v-chip-group class="ma-0 pa-0"
+                                              column
+                                              v-model="newLabel.color"
+                                >
+                                    <v-chip filter v-for="color in productCatalogStore.labelColors"
+                                            :key="color"
+                                            :value="color"
+                                            size="x-small"
+                                            :style="{ backgroundColor: color.toLowerCase() }">
+                                        {{ newLabel.name.toUpperCase() }}
+                                    </v-chip>
+                                </v-chip-group>
+                            </v-row>
+                        </v-expansion-panel-text>
+                    </v-expansion-panel>
+                </v-expansion-panels>
+
+                <v-file-input v-model="product.image" label="Image" show-size/>
+                <v-row class="d-flex justify-center my-4">
+                    <v-btn prepend-icon="mdi-plus" color="blue" class="rounded-pill mx-3" variant="flat"
+                           @click="submitProduct()" :disabled="!isFormValid">{{ isEditMode ? "Edit" : "Add" }} product
+                    </v-btn>
+                    <v-btn prepend-icon="mdi-cancel" class="rounded-pill mx-3" variant="flat" color="red"
+                           @click="productCatalogStore.closeAdminDialog()">Cancel
+                    </v-btn>
+                </v-row>
             </form>
         </v-card-item>
     </v-card>
@@ -126,7 +157,7 @@ const newLabel = reactive({
     name: 'NEW',
     color: 'WHITE'
 })
-
+const openPanels = ref([0]);
 const submitProduct = async () => {
     const formData = new FormData();
     formData.append('name', product.name);
@@ -148,6 +179,7 @@ const submitProduct = async () => {
     } else {
         await productCatalogStore.createProduct(formData);
     }
+    await productCatalogStore.closeAdminDialog();
 }
 const isFormValid = computed(() => {
     return product.name && product.description && product.price && product.category;
