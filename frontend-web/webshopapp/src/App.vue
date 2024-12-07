@@ -14,8 +14,8 @@
 
                 </v-col>
                 <v-col cols="9" class="d-flex justify-end">
-                    <RouterLink to="/" class="mt-2 mr-8">Catalog</RouterLink>
-                    <RouterLink v-if="userStore.isAdmin" to="/user" class="mt-2">Logbook</RouterLink>
+                    <v-btn variant="flat" to="/" class="mt-2 mr-8">Catalog</v-btn>
+                    <v-btn variant="flat" v-if="userStore.isAdmin" to="/user" class="mt-2">Logbook</v-btn>
                     <v-badge v-if="!userStore.isAdmin"
                              :content="quantity"
                              overlap
